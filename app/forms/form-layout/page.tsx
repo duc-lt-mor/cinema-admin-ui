@@ -1,3 +1,4 @@
+import AuthLayout from "@/app/layouts/auth-layout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import { Metadata } from "next";
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 
 const FormLayout = () => {
   return (
-    <>
+    <AuthLayout>
       <Breadcrumb pageName="FormLayout" />
 
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
@@ -256,7 +257,7 @@ const FormLayout = () => {
           </div>
         </div>
       </div>
-    </>
+    </AuthLayout>
   );
 };
 
