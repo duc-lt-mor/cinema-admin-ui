@@ -3,6 +3,8 @@ import "./globals.css";
 import "./data-tables-css.css";
 import "./satoshi.css";
 import { SessionProvider } from "next-auth/react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/ReactToastify.css";
 
 export default function RootLayout({
   children,
@@ -12,11 +14,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
-        {
-          <div className="dark:bg-boxdark-2 dark:text-bodydark">
-            {<SessionProvider>{children}</SessionProvider>}
-          </div>
-        }
+        <SessionProvider>
+          <ToastContainer />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );
