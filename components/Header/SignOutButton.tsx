@@ -1,13 +1,6 @@
-"use client";
-import { TSessionWithJwt } from "@/types/session-with-jwt.type";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 const SignOutButton = () => {
-  const {
-    tokens: { refreshToken },
-  } = useSession().data as TSessionWithJwt;
-  console.log(refreshToken);
-
   const handleSignout = async () => {
     signOut({ callbackUrl: "/signin" });
   };
