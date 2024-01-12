@@ -68,4 +68,19 @@ export const authConfig: AuthOptions = {
       return session;
     },
   },
+  events: {
+    async signOut(message) {
+      const token = message.token as TCustomNextAuthJwt;
+      const { refreshToken } = token;
+      try {
+        axiosRef.patch(Api.SIGN_OUT, null, {
+          headers: {
+            "x-refresh": refreshToken,
+          },
+        });
+      } catch (error) {
+        return;
+      }
+    },
+  },
 };
