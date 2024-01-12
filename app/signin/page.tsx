@@ -1,16 +1,11 @@
 "use client";
 import React, { ChangeEvent, FormEvent, useState } from "react";
-import { Metadata } from "next";
 import { TCredentials } from "@/types/credentials.type";
 import { signIn } from "next-auth/react";
-import { UserRole } from "@/constants/user-role.constant";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/ReactToastify.css";
 import SignInLayout from "../layouts/sign-in-layout";
-
-// export const metadata: Metadata = {
-//   title: "Admin | Sign In",
-// };
 
 const SignIn: React.FC = () => {
   const [credentials, setCredentials] = useState<TCredentials>({
@@ -30,12 +25,24 @@ const SignIn: React.FC = () => {
     if (user?.ok) {
       router.push("/film");
     } else {
-      console.log("error", user?.error);
+      toast.error("Wrong email or password");
     }
   };
 
   return (
     <SignInLayout>
+      <ToastContainer
+        position="top-center"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="rounded-sm w-1/3 center border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="w-full border-stroke dark:border-strokedark xl:w-full xl:border-l-2">
           <div className="w-full p-4 sm:p-12.5 xl:p-17.5">

@@ -2,10 +2,6 @@
 import { useSession } from "next-auth/react";
 import AuthLayout from "../layouts/auth-layout";
 
-// export const metadata: Metadata = {
-//   title: "Admin | Film",
-// };
-
 const Film = () => {
   const session = useSession();
   console.log("session", session);
