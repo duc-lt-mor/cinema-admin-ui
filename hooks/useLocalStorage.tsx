@@ -5,7 +5,7 @@ type SetValue<T> = T | ((val: T) => T);
 
 function useLocalStorage<T>(
   key: string,
-  initialValue: T
+  initialValue: T,
 ): [T, (value: SetValue<T>) => void] {
   // State to store our value
   // Pass  initial state function to useState so logic is only executed once
@@ -20,7 +20,6 @@ function useLocalStorage<T>(
       }
     } catch (error) {
       // If error also return initialValue
-      console.log(error);
       return initialValue;
     }
   });
@@ -40,7 +39,6 @@ function useLocalStorage<T>(
       }
     } catch (error) {
       // A more advanced implementation would handle the error case
-      console.log(error);
     }
   }, [key, storedValue]);
 
