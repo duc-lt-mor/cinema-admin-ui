@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { toast } from "react-toastify";
 
 export function middleware(request: NextRequest) {
   const redirectUrl = request.nextUrl.clone();
@@ -12,7 +11,6 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   } else if (!hasSessionToken && !isSignInRoute) {
     redirectUrl.pathname = "/signin";
-    toast.info("Sign in to continue");
     return NextResponse.redirect(redirectUrl);
   }
 }

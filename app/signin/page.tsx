@@ -3,8 +3,7 @@ import React, { ChangeEvent, FormEvent, useState } from "react";
 import { TCredentials } from "@/types/credentials.type";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/ReactToastify.css";
+import { toast } from "react-toastify";
 import SignInLayout from "../layouts/sign-in-layout";
 
 const SignIn: React.FC = () => {
@@ -25,24 +24,18 @@ const SignIn: React.FC = () => {
     if (user?.ok) {
       router.push("/film");
     } else {
-      toast.error("Wrong email or password");
+      toast.error("Wrong email or password", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
     }
   };
 
   return (
     <SignInLayout>
-      <ToastContainer
-        position="top-center"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
       <div className="rounded-sm w-1/3 center border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
         <div className="w-full border-stroke dark:border-strokedark xl:w-full xl:border-l-2">
           <div className="w-full p-4 sm:p-12.5 xl:p-17.5">
