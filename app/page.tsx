@@ -1,14 +1,11 @@
+"use client";
 import ECommerce from "@/components/Dashboard/E-commerce";
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Admin | Dashboard",
-};
+import AuthLayout from "./layouts/auth-layout";
 
 export default function Home() {
   return (
-    <>
+    <AuthLayout>
       <ECommerce />
-    </>
+    </AuthLayout>
   );
 }

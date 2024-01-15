@@ -1,13 +1,15 @@
-export type ResponseSuccess<T> = {
+export type TResponseSuccess<TData> = {
   type: "success";
   statusCode: number;
-  data: T;
+  data: TData;
 };
 
-export type ResponseError = {
+export type TResponseError = {
   type: "error";
   statusCode: number;
   detail: string | object;
   method: string;
   path: string;
 };
+
+export type TResponse<TData = any> = TResponseSuccess<TData> | TResponseError;

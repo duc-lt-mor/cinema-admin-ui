@@ -1,3 +1,4 @@
+import AuthLayout from "@/app/layouts/auth-layout";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import CheckboxFive from "@/components/Checkboxes/CheckboxFive";
 import CheckboxFour from "@/components/Checkboxes/CheckboxFour";
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
 
 const FormElements = () => {
   return (
-    <>
+    <AuthLayout>
       <Breadcrumb pageName="FormElements" />
 
       <div className="grid grid-cols-1 gap-9 sm:grid-cols-2">
@@ -354,7 +355,7 @@ const FormElements = () => {
           </div>
         </div>
       </div>
-    </>
+    </AuthLayout>
   );
 };
 
