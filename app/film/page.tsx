@@ -6,6 +6,10 @@ import { TFilmList } from "@/types/film.type";
 import Image from "next/image";
 import imageNotFound from "../../public/images/image-not-found.jpeg";
 import { useRouter } from "next/navigation";
+import { TResponseSuccess } from "@/types/response.type";
+import { HttpStatusCode } from "axios";
+import { useState } from "react";
+import "../pagination.css";
 
 const FilmList = () => {
   const router = useRouter();
@@ -18,18 +22,52 @@ const FilmList = () => {
     Status: 1,
   };
 
-  const films: TFilmList = Array.from({ length: 20 }, (_, i) => i + 1).map(
-    (filmId) => {
-      return {
-        _id: filmId.toString(),
-        name: `film${filmId}`,
-        genres: ["romance"],
-        releasedAt: "2016",
-        durationInMinutes: 107,
-        isActive: true,
-      };
+  const sampleFilms: TFilmList = Array.from(
+    { length: 22 },
+    (_, i) => i + 1,
+  ).map((filmId) => {
+    return {
+      _id: filmId.toString(),
+      name: `Film ${filmId}`,
+      genres: ["romance"],
+      releasedAt: (2000 + filmId).toString(),
+      durationInMinutes: 100 + filmId,
+      isActive: true,
+    };
+  });
+
+  const pageSize = 3;
+
+  const [result, setResult] = useState<
+    TResponseSuccess<{
+      films: TFilmList;
+      page: number;
+      filmsCount: number;
+    }>
+  >({
+    type: "success",
+    statusCode: HttpStatusCode.Ok,
+    data: {
+      films: sampleFilms.slice(0, pageSize),
+      page: 1,
+      filmsCount: sampleFilms.length,
     },
-  );
+  });
+
+  const onPageChange = (selectedItem: { selected: number }) => {
+    const { selected } = selectedItem;
+    setResult({
+      ...result,
+      data: {
+        ...result.data,
+        films: sampleFilms.slice(
+          selected * pageSize,
+          selected * pageSize + pageSize,
+        ),
+        page: selected + 1,
+      },
+    });
+  };
 
   const createRowElements: TCreateRowElements<TFilmList> = (
     films: TFilmList,
@@ -119,13 +157,26 @@ const FilmList = () => {
 
   return (
     <AuthLayout>
-      <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-5">
         <AppTable
           title="Films"
           columns={tableColumns}
-          rows={films}
+          rows={result.data.films}
           createRowElements={createRowElements}
           handleCreateButtonOnClick={handleCreateButtonOnClick}
+          pagination={{
+            pageCount: Math.ceil(sampleFilms.length / pageSize),
+            onPageChange,
+            previousLabel: "< ",
+            nextLabel: " >",
+            containerClassName: "pagination",
+            pageClassName: "page-item",
+            activeClassName: "active",
+            breakLabel: "...",
+            disableInitialCallback: true,
+            marginPagesDisplayed: 2,
+            pageLinkClassName: "page-link",
+          }}
         />
       </div>
     </AuthLayout>
