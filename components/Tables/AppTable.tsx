@@ -33,10 +33,11 @@ const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
       </div>
 
       <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
-        {Object.keys(columns).map((columnName) => {
+        {Object.keys(columns).map((columnName, i) => {
           return (
             <div
               className={`col-span-${columns[columnName]} flex items-center`}
+              key={i}
             >
               <p className="font-medium">{columnName}</p>
             </div>
