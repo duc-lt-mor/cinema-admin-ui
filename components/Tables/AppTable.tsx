@@ -1,21 +1,10 @@
 import { TAppTable } from "@/types/app-table.type";
-import ReactPaginate from "react-paginate";
+import Link from "next/link";
+import Pagination from "../Pagination/Pagination";
 
-import { memo } from "react";
-
-const AppTable = memo(function _AppTable<TRows extends any[]>(
-  props: TAppTable<TRows>,
-) {
-  const {
-    title,
-    columns,
-    createRowElements,
-    rows,
-    handleCreateButtonOnClick,
-    pagination,
-  } = props;
-
-  console.log("inside AppTable");
+const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
+  const { title, columns, createRowElements, rows, createHref, pagination } =
+    props;
 
   return (
     <>
@@ -24,9 +13,9 @@ const AppTable = memo(function _AppTable<TRows extends any[]>(
           <h4 className="text-xl font-semibold text-black dark:text-white">
             {title}
           </h4>
-          <button
-            className="inline-flex items-center justify-center gap-2.5 bg-primary py-1.5 px-3.5 text-center font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
-            onClick={handleCreateButtonOnClick}
+          <Link
+            href={createHref}
+            className="flex items-center justify-center gap-2.5 bg-primary py-1.5 px-3.5 font-medium text-white hover:bg-opacity-90 lg:px-8 xl:px-10"
           >
             <span>
               <svg
@@ -44,7 +33,7 @@ const AppTable = memo(function _AppTable<TRows extends any[]>(
               </svg>
             </span>
             Create
-          </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
@@ -63,10 +52,10 @@ const AppTable = memo(function _AppTable<TRows extends any[]>(
         {createRowElements(rows)}
       </div>
       <div className="flex flex-row-reverse">
-        <ReactPaginate {...pagination} />
+        <Pagination {...pagination} />
       </div>
     </>
   );
-});
+};
 
 export default AppTable;
