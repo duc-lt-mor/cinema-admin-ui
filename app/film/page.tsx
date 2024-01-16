@@ -10,6 +10,7 @@ import { TResponseSuccess } from "@/types/response.type";
 import { HttpStatusCode } from "axios";
 import { useState } from "react";
 import "../pagination.css";
+import ActiveToggle from "@/components/ActiveToggle/ActiveToggle";
 
 const FilmList = () => {
   const router = useRouter();
@@ -85,12 +86,12 @@ const FilmList = () => {
     };
     return (
       <ul>
-        {films.map((film) => {
+        {films.map((film, key) => {
           return (
             <li
               className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5 cursor-pointer"
-              key={film._id}
-              onClick={() => handleRowClick(film._id)}
+              key={key}
+              // onClick={() => handleRowClick(film._id)}
             >
               <div
                 className={`col-span-${tableColumns["Name"]} flex items-center`}
@@ -140,9 +141,13 @@ const FilmList = () => {
               <div
                 className={`col-span-${tableColumns["Status"]} flex items-center`}
               >
-                <p className="text-sm text-meta-3">
-                  {film.isActive ? "Active" : "Inactive"}
-                </p>
+                <ActiveToggle
+                  name={`film-${key}`}
+                  onToggle={() => {
+                    film.isActive = !film.isActive;
+                  }}
+                  checked={film.isActive}
+                />
               </div>
             </li>
           );
