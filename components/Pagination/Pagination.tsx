@@ -2,13 +2,7 @@ import Link from "next/link";
 import React from "react";
 import usePagination, { dotts } from "../../hooks/usePagination";
 import "../../app/pagination.css";
-
-export type PaginationProps = {
-  totalItems: number;
-  currentPage: number;
-  renderPageLink: (page: number) => string;
-  itemsPerPage: number;
-};
+import { PaginationProps } from "@/types/app-table.type";
 
 const Pagination = ({
   totalItems,
