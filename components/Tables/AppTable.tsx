@@ -1,7 +1,11 @@
 import { TAppTable } from "@/types/app-table.type";
 import ReactPaginate from "react-paginate";
 
-const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
+import { memo } from "react";
+
+const AppTable = memo(function _AppTable<TRows extends any[]>(
+  props: TAppTable<TRows>,
+) {
   const {
     title,
     columns,
@@ -10,6 +14,9 @@ const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
     handleCreateButtonOnClick,
     pagination,
   } = props;
+
+  console.log("inside AppTable");
+
   return (
     <>
       <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
@@ -60,6 +67,6 @@ const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
       </div>
     </>
   );
-};
+});
 
 export default AppTable;
