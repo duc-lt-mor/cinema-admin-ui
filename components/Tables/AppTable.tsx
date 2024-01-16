@@ -1,7 +1,9 @@
 import { TAppTable } from "@/types/app-table.type";
 import { memo } from "react";
 
-const AppTable = memo(<TRows extends any[]>(props: TAppTable<TRows>) => {
+const AppTable = memo(function _AppTable<TRows extends any[]>(
+  props: TAppTable<TRows>,
+) {
   const { title, columns, createRowElements, rows, handleCreateButtonOnClick } =
     props;
 
