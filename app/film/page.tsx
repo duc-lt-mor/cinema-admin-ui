@@ -115,12 +115,12 @@ const FilmList = () => {
         </p>
       );
     },
-    [],
+    [router, tableColumns],
   );
 
   const handleCreateButtonOnClick = useCallback(() => {
     router.push("film/new");
-  }, []);
+  }, [router]);
 
   return (
     <AuthLayout>
