@@ -1,8 +1,10 @@
 import { TAppTable } from "@/types/app-table.type";
+import { memo } from "react";
 
-const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
+const AppTable = memo(<TRows extends any[]>(props: TAppTable<TRows>) => {
   const { title, columns, createRowElements, rows, handleCreateButtonOnClick } =
     props;
+
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="py-6 px-4 md:px-6 xl:px-7.5 flex justify-between">
@@ -48,6 +50,6 @@ const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
       {createRowElements(rows)}
     </div>
   );
-};
+});
 
 export default AppTable;
