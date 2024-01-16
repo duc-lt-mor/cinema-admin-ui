@@ -1,9 +1,7 @@
-import { UserRole } from "@/constants/user-role.constant";
-
 export type TUser = {
   id: string;
   email: string;
-  role: UserRole;
+  role: "admin";
   accessToken: string;
   refreshToken: string;
 };
