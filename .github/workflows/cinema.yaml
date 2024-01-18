@@ -64,6 +64,9 @@ jobs:
       - name: Run lint
         run: pnpm lint
       - name: Build with Next.js
+        env:
+          REMOTE_IMAGE_HOSTNAME: ${{ secrets.REMOTE_IMAGE_HOSTNAME }}
+          REMOTE_IMAGE_PATHNAME: ${{ secrets.REMOTE_IMAGE_PATHNAME }}
         run: pnpm next build
       # - name: Static HTML export with Next.js
       #   run: ${{ steps.detect-package-manager.outputs.runner }} next export
