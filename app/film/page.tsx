@@ -1,10 +1,14 @@
 import AppTable from "@/components/Tables/AppTable";
 import AuthLayout from "../layouts/auth-layout";
-import { TAppTableColumns } from "@/types/app-table.type";
 import { TFilmList } from "@/types/film.type";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import imageNotFound from "../../public/images/image-not-found.jpeg";
 import { HttpStatusCode } from "axios";
+import { tableColumns } from "./table-columns";
+import {
+  IMAGE_HEIGHT_IN_ROW,
+  IMAGE_WIDTH_IN_ROW,
+} from "@/constants/image-dimensions-in-rows";
 
 const sampleFilms: TFilmList = Array.from({ length: 22 }, (_, i) => i + 1).map(
   (filmId) => {
@@ -24,18 +28,15 @@ const FilmList = async ({
 }: {
   searchParams: { page: string; limit?: string };
 }) => {
-  const tableColumns: TAppTableColumns = {
-    Name: 3,
-    Genres: 2,
-    "Release year": 1,
-    Duration: 1,
-    Status: 1,
-  };
-
   let _page = parseInt(page, 10);
-  _page = !_page || _page < 1 ? 1 : _page;
+  if (!_page || _page < 1) {
+    _page = 1;
+  }
+
   let _limit = parseInt(limit, 10);
-  _limit = !_limit || _limit < 2 ? 2 : _limit;
+  if (!_limit || _limit < 2) {
+    _limit = 2;
+  }
 
   const result = {
     type: "success",
@@ -54,6 +55,15 @@ const FilmList = async ({
     return films?.length > 0 ? (
       <ul>
         {films.map((film) => {
+          let posterUrl: string | StaticImageData;
+          if (!film.poster || film.poster.url === "") {
+            posterUrl = imageNotFound;
+          } else {
+            posterUrl = film.poster.url;
+          }
+
+          const genresOnDisplay = film.genres.join(", ");
+
           return (
             <li
               className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5 cursor-pointer"
@@ -65,9 +75,9 @@ const FilmList = async ({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="h-12.5 w-15 rounded-md">
                     <Image
-                      src={film.poster?.url ?? imageNotFound}
-                      width={60}
-                      height={50}
+                      src={posterUrl}
+                      width={IMAGE_WIDTH_IN_ROW}
+                      height={IMAGE_HEIGHT_IN_ROW}
                       alt="Film poster"
                     />
                   </div>
@@ -81,13 +91,7 @@ const FilmList = async ({
                 className={`col-span-${tableColumns["Genres"]} hidden items-center sm:flex`}
               >
                 <p className="text-sm text-black dark:text-white">
-                  {film.genres.reduce((prevGenres, currGenre, idx, genres) => {
-                    let displayText = `${prevGenres}${currGenre}`;
-                    if (idx !== genres.length - 1) {
-                      displayText = `${displayText}, `;
-                    }
-                    return displayText;
-                  }, "")}
+                  {genresOnDisplay}
                 </p>
               </div>
               <div
@@ -128,7 +132,7 @@ const FilmList = async ({
         <AppTable
           title="Films"
           columns={tableColumns}
-          rows={result.data.films}
+          rows={result?.data?.films ?? []}
           createRowElements={createRowElements}
           createHref="/film/new"
           pagination={{
