@@ -1,3 +1,4 @@
+import { PaginationProps } from "@/components/Pagination/Pagination";
 import { ReactNode } from "react";
 
 type SizeInGridLayout = number;
@@ -15,5 +16,6 @@ export type TAppTable<TRows extends any[]> = {
   columns: TAppTableColumns;
   rows: TRows;
   createRowElements: TCreateRowElements<TRows>;
-  handleCreateButtonOnClick: (...args: any) => void;
+  createHref: string;
+  pagination: PaginationProps;
 };

@@ -1,0 +1,35 @@
+.pagination {
+  list-style: none;
+  height: 31.5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  width: max-content;
+  margin-right: 10px;
+}
+
+.page-active {
+  background-color: #1e50ff;
+  border-radius: 10%;
+  color: white;
+}
+
+li.page-item {
+  list-style: none;
+  height: 31.5px;
+  width: 31.5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+li.page-item .page-link {
+  flex-basis: 100%;
+  text-align: center;
+}
+
+li.page-item:hover {
+  border: solid #1e50ff 1px;
+  border-radius: 10%;
+}
