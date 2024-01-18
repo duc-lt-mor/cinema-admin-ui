@@ -1,13 +1,10 @@
 "use client";
 import AuthLayout from "@/app/layouts/auth-layout";
-import DropdownIndicator from "@/components/CustomSelect/DropdownIndicator";
-import MultiValueRemove from "@/components/CustomSelect/MultiValueRemove";
 import { TFilmFormInput } from "@/types/film.type";
 import { useForm } from "react-hook-form";
 import Select from "react-select";
-import { FilmGenre } from "../constants/film-genres.constant";
 
-const FilmForm = () => {
+export const FilmForm = () => {
   const {
     handleSubmit,
     register,
@@ -15,20 +12,7 @@ const FilmForm = () => {
   } = useForm<TFilmFormInput>();
   return (
     <AuthLayout>
-      <form
-        onSubmit={handleSubmit((data) => {
-          const { cast, poster } = data;
-          if (typeof cast === "string" && cast !== "" && cast.includes(",")) {
-            data.cast = cast.split(",");
-          }
-
-          if (Array.isArray(poster) && poster.length === 1) {
-            data.poster = poster[0];
-          }
-
-          console.log(data);
-        })}
-      >
+      <form onSubmit={handleSubmit((data) => console.log(data))}>
         <div className="p-6.5">
           <div className="mb-4.5">
             <label
@@ -73,12 +57,8 @@ const FilmForm = () => {
               type="file"
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
               {...register("poster", {
-                validate: (value?: File | FileList) => {
-                  if (value && Array.isArray(value)) {
-                    if (value.length > 1) {
-                      return false;
-                    }
-
+                validate: (value?: FileList) => {
+                  if (value && value.length > 0) {
                     const acceptedFormats = [
                       "png",
                       "jpg",
@@ -102,7 +82,7 @@ const FilmForm = () => {
               })}
             />
             {errors?.poster?.type === "validate" && (
-              <p>Only 1 image file is allowed</p>
+              <p>Only image files are allowed</p>
             )}
           </div>
 
@@ -229,5 +209,3 @@ const FilmForm = () => {
     </AuthLayout>
   );
 };
-
-export default FilmForm;
