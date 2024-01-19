@@ -33,7 +33,7 @@ const getInstance = ({
       const { status, config } = error.response!;
       if (status === HttpStatusCode.Unauthorized) {
         const result = await refreshTokens(refreshToken);
-        if (!result || !result.data) {
+        if (!result?.data) {
           return Promise.reject(error);
         }
 
