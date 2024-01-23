@@ -1,6 +1,6 @@
 import { TAppTableColumns } from "@/types/app-table.type";
 
-export const tableColumns: TAppTableColumns = {
+export const filmListTableColumns: TAppTableColumns = {
   Name: 3,
   Genres: 2,
   "Release year": 1,

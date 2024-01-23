@@ -62,7 +62,11 @@ jobs:
       - name: Install dependencies
         run: pnpm i
       - name: Run lint
-        run: pnpm lint
+        run: |
+          touch .env.local
+          echo REMOTE_IMAGE_HOSTNAME=${{ secrets.REMOTE_IMAGE_HOSTNAME }} >> .env.local
+          echo REMOTE_IMAGE_PATHNAME=${{ secrets.REMOTE_IMAGE_PATHNAME }} >> .env.local
+          pnpm lint
       - name: Build with Next.js
         run: pnpm next build
       # - name: Static HTML export with Next.js

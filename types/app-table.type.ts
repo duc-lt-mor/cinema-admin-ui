@@ -1,7 +1,13 @@
-import { PaginationProps } from "@/components/Pagination/Pagination";
 import { ReactNode } from "react";
 
 type SizeInGridLayout = number;
+
+export type PaginationProps = {
+  totalItems: number;
+  currentPage: number;
+  renderPageLink: (page: number) => string;
+  itemsPerPage: number;
+};
 
 export type TAppTableColumns = {
   [columnName: string]: SizeInGridLayout;
