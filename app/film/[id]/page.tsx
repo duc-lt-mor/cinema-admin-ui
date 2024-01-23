@@ -6,6 +6,7 @@ import { TFilmFormInput } from "@/types/film.type";
 import { useForm } from "react-hook-form";
 import Select from "react-select";
 import { FilmGenre } from "../constants/film-genres.constant";
+import TagsInput from "@/components/TagInput/TagInput";
 
 const FilmForm = () => {
   const {
@@ -171,7 +172,7 @@ const FilmForm = () => {
             )}
           </div>
 
-          <div className="mb-4.5">
+          {/* <div className="mb-4.5">
             <label className="mb-2.5 block text-black dark:text-white">
               Cast
             </label>
@@ -180,6 +181,18 @@ const FilmForm = () => {
               {...register("cast")}
               placeholder="Actor names, serapated by comma (,)"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+            />
+          </div> */}
+
+          <div className="mb-4.5 tests">
+            <label className="mb-2.5 block text-black dark:text-white">
+              Cast
+            </label>
+            <TagsInput
+              selectedTags={(tags: any) => console.log(tags)}
+              tags={["a", "b"]}
+              {...register("cast")}
+              placeholder="Actor names, serapated by comma (,)"
             />
           </div>
 
