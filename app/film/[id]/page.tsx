@@ -3,32 +3,74 @@ import AuthLayout from "@/app/layouts/auth-layout";
 import DropdownIndicator from "@/components/CustomSelect/DropdownIndicator";
 import MultiValueRemove from "@/components/CustomSelect/MultiValueRemove";
 import { TFilmFormInput } from "@/types/film.type";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Select from "react-select";
 import { FilmGenre } from "../constants/film-genres.constant";
+import { useMutation } from "@tanstack/react-query";
+import { createFilm } from "@/commons/api-calls.common";
+import { TCustomSelectOptions } from "@/types/custom-select-options.type";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const FilmForm = () => {
   const {
     handleSubmit,
     register,
     formState: { errors },
+    control,
   } = useForm<TFilmFormInput>();
+
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: (body: FormData) => {
+      return createFilm(body);
+    },
+    onSuccess(data) {
+      toast.success(data?.data.message, {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+      router.push("/film");
+    },
+    onError() {
+      toast.error("An error has occurred", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        theme: "light",
+      });
+    },
+  });
+
+  const filmFormOnSubmit = handleSubmit(async (data) => {
+    const { poster, trailer } = data;
+
+    if (poster && "length" in poster && poster.length === 1) {
+      data.poster = poster[0];
+    } else {
+      delete data.poster;
+    }
+
+    if (trailer === "") {
+      delete data.trailer;
+    }
+
+    const formData = new FormData();
+    for (const [k, v] of Object.entries(data)) {
+      formData.set(k, v as any);
+    }
+
+    mutation.mutate(formData);
+  });
+
   return (
     <AuthLayout>
-      <form
-        onSubmit={handleSubmit((data) => {
-          const { cast, poster } = data;
-          if (typeof cast === "string" && cast !== "" && cast.includes(",")) {
-            data.cast = cast.split(",");
-          }
-
-          if (Array.isArray(poster) && poster.length === 1) {
-            data.poster = poster[0];
-          }
-
-          console.log(data);
-        })}
-      >
+      <form onSubmit={filmFormOnSubmit}>
         <div className="p-6.5">
           <div className="mb-4.5">
             <label
@@ -43,7 +85,9 @@ const FilmForm = () => {
               placeholder="Film name"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
-            {errors?.name?.type === "required" && <p>Name is required</p>}
+            {errors?.name?.type === "required" && (
+              <p className="text-danger">Name is required</p>
+            )}
           </div>
 
           <div className="mb-6">
@@ -55,13 +99,12 @@ const FilmForm = () => {
             </label>
             <textarea
               rows={6}
-              {...register("description")}
+              {...register("description", { required: true })}
               placeholder="Film description"
-              required
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             ></textarea>
             {errors?.description?.type === "required" && (
-              <p>Description is required</p>
+              <p className="text-danger">Description is required</p>
             )}
           </div>
 
@@ -69,40 +112,15 @@ const FilmForm = () => {
             <label className="mb-3 block text-black dark:text-white">
               Poster
             </label>
+
             <input
+              {...register("poster", { required: false })}
               type="file"
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-              {...register("poster", {
-                validate: (value?: File | FileList) => {
-                  if (value && Array.isArray(value)) {
-                    if (value.length > 1) {
-                      return false;
-                    }
-
-                    const acceptedFormats = [
-                      "png",
-                      "jpg",
-                      "jpeg",
-                      "svg",
-                      "webp",
-                    ];
-                    const fileExtension = value[0].name
-                      .split(".")
-                      .pop()
-                      ?.toLowerCase();
-                    if (
-                      fileExtension &&
-                      !acceptedFormats.includes(fileExtension)
-                    ) {
-                      return false;
-                    }
-                  }
-                  return true;
-                },
-              })}
             />
+
             {errors?.poster?.type === "validate" && (
-              <p>Only 1 image file is allowed</p>
+              <p className="text-danger">Only 1 image file is allowed</p>
             )}
           </div>
 
@@ -113,13 +131,16 @@ const FilmForm = () => {
             <input
               type="text"
               {...register("trailer", {
+                required: false,
                 pattern:
                   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
               })}
               placeholder="Format: http(s)://{domain}"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
-            {errors?.trailer?.type === "pattern" && <p>Must be a full URL</p>}
+            {errors?.trailer?.type === "pattern" && (
+              <p className="text-danger">Must be a full URL</p>
+            )}
           </div>
 
           <div className="mb-4.5">
@@ -127,31 +148,49 @@ const FilmForm = () => {
               Genres <span className="text-meta-1">*</span>
             </label>
 
-            <Select
-              isMulti
-              required
-              name={register("genres").name}
-              options={Object.values(FilmGenre).map((genre) => {
-                return {
-                  value: genre,
-                  label: genre,
-                };
-              })}
-              placeholder="Select film genres..."
-              components={{
-                MultiValueRemove,
-                DropdownIndicator,
-              }}
-              classNames={{
-                control: () =>
-                  "relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white",
-                multiValue: () =>
-                  "m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-base font-medium dark:border-strokedark dark:bg-white/30",
-                multiValueLabel: () => " text-body dark:text-white",
-                input: () => "text-body dark:text-bodydark",
-                placeholder: () => "ml-1 text-body dark:text-bodydark",
-                menu: () =>
-                  "dark:border-form-strokedark dark:bg-form-input dark:text-white focus:bg-bodydark",
+            <Controller
+              name="genres"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <Select
+                    name={field.name}
+                    isMulti
+                    required
+                    options={Object.values(FilmGenre).map<
+                      TCustomSelectOptions<FilmGenre>
+                    >((genre) => {
+                      return {
+                        value: genre,
+                        label: genre,
+                      };
+                    })}
+                    placeholder="Select film genres..."
+                    components={{
+                      MultiValueRemove: MultiValueRemove<
+                        TCustomSelectOptions<FilmGenre>
+                      >,
+                      DropdownIndicator: DropdownIndicator<
+                        TCustomSelectOptions<FilmGenre>
+                      >,
+                    }}
+                    closeMenuOnSelect={false}
+                    classNames={{
+                      control: () =>
+                        "relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white",
+                      multiValue: () =>
+                        "m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-base font-medium dark:border-strokedark dark:bg-white/30",
+                      multiValueLabel: () => "text-body dark:text-white",
+                      input: () => "text-body dark:text-bodydark",
+                      placeholder: () => "ml-1 text-body dark:text-bodydark",
+                      menu: () =>
+                        "dark:border-form-strokedark dark:bg-form-input dark:text-white focus:bg-bodydark",
+                    }}
+                    onChange={(values) => {
+                      field.onChange(values.map((val) => val.value).join(","));
+                    }}
+                  />
+                );
               }}
             />
           </div>
@@ -167,7 +206,7 @@ const FilmForm = () => {
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
             {errors?.director?.type === "required" && (
-              <p>Director name is required</p>
+              <p className="text-danger">Director name is required</p>
             )}
           </div>
 
@@ -196,7 +235,9 @@ const FilmForm = () => {
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
             {errors?.releasedAt?.type === "pattern" && (
-              <p>Must be a valid year between 1900 and 2100</p>
+              <p className="text-danger">
+                Must be a valid year between 1900 and 2100
+              </p>
             )}
           </div>
 
@@ -212,7 +253,7 @@ const FilmForm = () => {
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
             {errors?.durationInMinutes?.type === "pattern" && (
-              <p>Must be a positive number</p>
+              <p className="text-danger">Must be a positive number</p>
             )}
           </div>
 

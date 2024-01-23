@@ -1,6 +1,8 @@
 import { MultiValueRemoveProps, components } from "react-select";
 
-const MultiValueRemove = (props: MultiValueRemoveProps) => {
+const MultiValueRemove = <TOptions,>(
+  props: MultiValueRemoveProps<TOptions, true>,
+) => {
   return (
     <components.MultiValueRemove {...props}>
       <span className="cursor-pointer pl-2 hover:text-danger">

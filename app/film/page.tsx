@@ -3,9 +3,6 @@ import AuthLayout from "../layouts/auth-layout";
 import { TFilmList } from "@/types/film.type";
 import Image, { StaticImageData } from "next/image";
 import imageNotFound from "../../public/images/image-not-found.jpeg";
-import { getServerSession } from "next-auth";
-import { authConfig } from "@/constants/nextauth-options.constant";
-import { TSessionWithJwt } from "@/types/session-with-jwt.type";
 import {
   IMAGE_HEIGHT_IN_ROW,
   IMAGE_WIDTH_IN_ROW,
@@ -14,7 +11,7 @@ import { filmListTableColumns } from "./constants/film-list-table-columns.consta
 import { getFilms } from "@/commons/api-calls.common";
 
 const FilmList = async ({
-  searchParams: { page, limit = "5" },
+  searchParams: { page = "1", limit = "5" },
 }: {
   searchParams: { page: string; limit?: string };
 }) => {
@@ -28,14 +25,7 @@ const FilmList = async ({
     limitToNumber = 2;
   }
 
-  const {
-    tokens: { accessToken },
-  } = (await getServerSession(authConfig)) as TSessionWithJwt;
-
-  const result = await getFilms(
-    { page: pageToNumber, limit: limitToNumber },
-    accessToken,
-  );
+  const result = await getFilms({ page: pageToNumber, limit: limitToNumber });
 
   const createRowElements = (films: TFilmList) => {
     return films?.length > 0 ? (

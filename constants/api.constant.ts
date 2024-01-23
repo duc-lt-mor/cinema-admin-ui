@@ -4,4 +4,5 @@ export enum Api {
   FILM = "/admin/films",
   AUDITORIUM = "/admin/auditoriums",
   SCREENING = "/admin/screenings",
+  REFRESH_TOKEN = "/auth/refresh-tokens",
 }

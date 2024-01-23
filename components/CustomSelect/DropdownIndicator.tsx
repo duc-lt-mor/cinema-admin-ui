@@ -1,6 +1,8 @@
 import { DropdownIndicatorProps, components } from "react-select";
 
-const DropdownIndicator = (props: DropdownIndicatorProps) => {
+const DropdownIndicator = <TOptions,>(
+  props: DropdownIndicatorProps<TOptions, true>,
+) => {
   return (
     <components.DropdownIndicator {...props}>
       <svg

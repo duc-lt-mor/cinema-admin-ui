@@ -1,25 +1,40 @@
+"use server";
 import { Api } from "@/constants/api.constant";
-import axiosRef from "@/constants/axios-ref.constant";
-import { TFilmFormInput, TFilmList } from "@/types/film.type";
+import { TFilmList } from "@/types/film.type";
+import useAxiosRef from "@/hooks/useAxiosRef";
 import { TResponse } from "@/types/response.type";
 import { AxiosResponse } from "axios";
+import { revalidatePath } from "next/cache";
 
-export const getFilms = async (
-  pagination: { page: number; limit: number },
-  accessToken: string,
-) => {
+export const getFilms = async (pagination: { page: number; limit: number }) => {
   try {
+    const axiosRef = await useAxiosRef();
     const result: AxiosResponse<
       TResponse<{
         films: TFilmList;
         page: number;
         filmsCount: number;
       }>
-    > = await axiosRef.get(Api.FILM, {
+    > = await axiosRef.get(Api.FILM, { params: pagination });
+
+    if (result.data?.type === "success") {
+      return result.data;
+    }
+  } catch (error) {}
+};
+
+export const refreshTokens = async (refreshToken: string) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<
+      TResponse<{
+        accessToken: string;
+        refreshToken: string;
+      }>
+    > = await axiosRef.post(Api.REFRESH_TOKEN, null, {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        "x-refresh": refreshToken,
       },
-      params: pagination,
     });
 
     if (result.data?.type === "success") {
@@ -28,17 +43,18 @@ export const getFilms = async (
   } catch (error) {}
 };
 
-export const createFilm = async (body: TFilmFormInput, accessToken: string) => {
+export const createFilm = async (body: FormData) => {
   try {
+    const axiosRef = await useAxiosRef();
     const result: AxiosResponse<TResponse<{ message: string }>> =
       await axiosRef.post(Api.FILM, body, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${accessToken}`,
         },
       });
 
     if (result.data?.type === "success") {
+      revalidatePath("/films");
       return result.data;
     }
   } catch (error) {}
