@@ -11,6 +11,7 @@ import { createFilm } from "@/commons/api-calls.common";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import TagsInput from "@/components/TagInput/TagInput";
 
 const FilmForm = () => {
   const {
@@ -210,15 +211,22 @@ const FilmForm = () => {
             )}
           </div>
 
-          <div className="mb-4.5">
+          <div className="mb-4.5 tests">
             <label className="mb-2.5 block text-black dark:text-white">
               Cast
             </label>
-            <input
-              type="text"
-              {...register("cast")}
-              placeholder="Actor names, serapated by comma (,)"
-              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+            <Controller
+              name="cast"
+              control={control}
+              render={({ field }) => (
+                <TagsInput
+                  name={field.name}
+                  placeholder="Actor names, serapated by comma (,)"
+                  onChange={(tags) => {
+                    field.onChange(tags.join(","));
+                  }}
+                />
+              )}
             />
           </div>
 
