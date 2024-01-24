@@ -2,12 +2,11 @@
 import { useState, KeyboardEvent } from "react";
 
 const TagsInput = (props: {
-  selectedTags: any;
-  tags: string[];
+  onChange: (tags: string[]) => void;
   name: string;
   placeholder: string;
 }) => {
-  const [tags, setTags] = useState(props.tags);
+  const [tags, setTags] = useState<string[]>([]);
 
   const removeTags = (indexToRemove: number) => {
     setTags([...tags.filter((_, index) => index !== indexToRemove)]);
@@ -15,18 +14,16 @@ const TagsInput = (props: {
 
   const addTags = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.currentTarget.value !== "") {
-      console.log(event.currentTarget.value);
       event.currentTarget.value.replace(",", "");
-      console.log(event.currentTarget.value);
 
       setTags([...tags, event.currentTarget.value]);
-      props.selectedTags([...tags, event.currentTarget.value]);
+      props.onChange([...tags, event.currentTarget.value]);
       event.currentTarget.value = "";
     }
   };
 
   return (
-    <div className="flex flex-wrap items-start relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
+    <div className="flex flex-wrap items-start relative w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input">
       <ul id="tags" className="flex flex-wrap items-center p-0">
         {tags.map((tag, index) => (
           <li key={index}>
