@@ -23,7 +23,6 @@ const FilmForm = () => {
     if (isValidPoster) {
       data.poster = poster[0];
     }
-    // TODO: connect to create API
   });
 
   const validatePoster = (value?: TFilmFormInput["poster"]) => {
