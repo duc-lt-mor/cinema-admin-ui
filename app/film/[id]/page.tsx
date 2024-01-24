@@ -70,7 +70,10 @@ const FilmForm = () => {
           </div>
 
           <div className="mb-4.5">
-            <label className="mb-3 block text-black dark:text-white">
+            <label
+              className="mb-3 block text-black dark:text-white"
+              htmlFor="poster"
+            >
               Poster
             </label>
             <input
@@ -115,14 +118,17 @@ const FilmForm = () => {
           </div>
 
           <div className="mb-4.5">
-            <label className="mb-2.5 block text-black dark:text-white">
+            <label
+              className="mb-2.5 block text-black dark:text-white"
+              htmlFor="trailer"
+            >
               Trailer link
             </label>
             <input
               type="text"
               {...register("trailer", {
                 pattern:
-                  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/,
+                  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/,
               })}
               placeholder="Format: http(s)://{domain}"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -133,42 +139,54 @@ const FilmForm = () => {
           </div>
 
           <div className="mb-4.5">
-            <label className="mb-3 block text-black dark:text-white">
+            <label
+              className="mb-3 block text-black dark:text-white"
+              htmlFor="genres"
+            >
               Genres <span className="text-meta-1">*</span>
             </label>
 
-            <Select
-              isMulti
-              required
-              name={register("genres").name}
-              options={Object.values(FilmGenre).map((genre) => {
-                return {
-                  value: genre,
-                  label: genre,
-                };
-              })}
-              placeholder="Select film genres..."
-              components={{
-                MultiValueRemove,
-                DropdownIndicator,
-              }}
-              classNames={{
-                control: () =>
-                  "relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white",
-                multiValue: () =>
-                  "m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-base font-medium dark:border-strokedark dark:bg-white/30",
-                multiValueLabel: () => "text-body dark:text-white",
-                input: () => "text-body dark:text-bodydark",
-                placeholder: () => "ml-1 text-body dark:text-bodydark",
-                menu: () =>
-                  "dark:border-form-strokedark dark:bg-form-input dark:text-white focus:bg-bodydark",
-              }}
-              closeMenuOnSelect={false}
+            <Controller
+              name="genres"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  isMulti
+                  required
+                  name={field.name}
+                  options={Object.values(FilmGenre).map((genre) => {
+                    return {
+                      value: genre,
+                      label: genre,
+                    };
+                  })}
+                  placeholder="Select film genres..."
+                  components={{
+                    MultiValueRemove,
+                    DropdownIndicator,
+                  }}
+                  classNames={{
+                    control: () =>
+                      "relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white",
+                    multiValue: () =>
+                      "m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-base font-medium dark:border-strokedark dark:bg-white/30",
+                    multiValueLabel: () => "text-body dark:text-white",
+                    input: () => "text-body dark:text-bodydark",
+                    placeholder: () => "ml-1 text-body dark:text-bodydark",
+                    menu: () =>
+                      "dark:border-form-strokedark dark:bg-form-input dark:text-white focus:bg-bodydark",
+                  }}
+                  closeMenuOnSelect={false}
+                />
+              )}
             />
           </div>
 
           <div className="mb-4.5">
-            <label className="mb-2.5 block text-black dark:text-white">
+            <label
+              className="mb-2.5 block text-black dark:text-white"
+              htmlFor="director"
+            >
               Director <span className="text-meta-1">*</span>
             </label>
             <input
@@ -183,7 +201,10 @@ const FilmForm = () => {
           </div>
 
           <div className="mb-4.5 tests">
-            <label className="mb-2.5 block text-black dark:text-white">
+            <label
+              className="mb-2.5 block text-black dark:text-white"
+              htmlFor="cast"
+            >
               Cast
             </label>
             <Controller
@@ -202,13 +223,27 @@ const FilmForm = () => {
           </div>
 
           <div className="mb-4.5">
-            <label className="mb-2.5 block text-black dark:text-white">
+            <label
+              className="mb-2.5 block text-black dark:text-white"
+              htmlFor="releasedAt"
+            >
               Release year <span className="text-meta-1">*</span>
             </label>
             <input
               type="text"
               {...register("releasedAt", {
-                pattern: /190[0-9]|19[1-9][0-9]|20[0-9]{2}|2100/,
+                validate: (value) => {
+                  if (Number.isNaN(value)) {
+                    return false;
+                  }
+
+                  const releaseYear = +value;
+                  return (
+                    Number.isInteger(releaseYear) &&
+                    releaseYear >= 1900 &&
+                    releaseYear <= 2100
+                  );
+                },
               })}
               placeholder="Release year"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -221,17 +256,29 @@ const FilmForm = () => {
           </div>
 
           <div className="mb-4.5">
-            <label className="mb-2.5 block text-black dark:text-white">
+            <label
+              className="mb-2.5 block text-black dark:text-white"
+              htmlFor="durationInMinutes"
+            >
               Duration (minutes) <span className="text-meta-1">*</span>
             </label>
             <input
               type="text"
-              {...register("durationInMinutes", { pattern: /^\d*\.?\d+$/ })}
+              {...register("durationInMinutes", {
+                validate: (value) => {
+                  if (Number.isNaN(value)) {
+                    return false;
+                  }
+
+                  const duration = +value;
+                  return duration > 0;
+                },
+              })}
               required
               placeholder="Duration in minutes"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
-            {errors?.durationInMinutes?.type === "pattern" && (
+            {errors?.durationInMinutes?.type === "validate" && (
               <p className="text-danger">Must be a positive number</p>
             )}
           </div>
