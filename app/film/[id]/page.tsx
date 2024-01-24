@@ -15,22 +15,61 @@ const FilmForm = () => {
     formState: { errors },
     control,
   } = useForm<TFilmFormInput>();
+
+  const onSubmit = handleSubmit((data) => {
+    const { poster } = data;
+
+    const isValidPoster = poster && "length" in poster && poster.length === 1;
+    if (isValidPoster) {
+      data.poster = poster[0];
+    }
+    // TODO: connect to create API
+  });
+
+  const validatePoster = (value?: TFilmFormInput["poster"]) => {
+    if (value && "length" in value) {
+      if (value.length > 1) {
+        return false;
+      }
+
+      if (value.length === 0) {
+        return true;
+      }
+
+      const acceptedFormats = ["png", "jpg", "jpeg", "svg", "webp"];
+      const fileExtension = value[0].name.split(".").pop()?.toLowerCase();
+      if (!fileExtension || !acceptedFormats.includes(fileExtension)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const validateReleaseYear = (value: TFilmFormInput["releasedAt"]) => {
+    if (Number.isNaN(value)) {
+      return false;
+    }
+
+    const releaseYear = +value;
+    return (
+      Number.isInteger(releaseYear) &&
+      releaseYear >= 1900 &&
+      releaseYear <= 2100
+    );
+  };
+
+  const validateDuration = (value: TFilmFormInput["durationInMinutes"]) => {
+    if (Number.isNaN(value)) {
+      return false;
+    }
+
+    const duration = +value;
+    return duration > 0;
+  };
+
   return (
     <AuthLayout>
-      <form
-        onSubmit={handleSubmit((data) => {
-          const { cast, poster } = data;
-          if (typeof cast === "string" && cast !== "" && cast.includes(",")) {
-            data.cast = cast.split(",");
-          }
-
-          if (Array.isArray(poster) && poster.length === 1) {
-            data.poster = poster[0];
-          }
-
-          console.log(data);
-        })}
-      >
+      <form onSubmit={onSubmit}>
         <div className="p-6.5">
           <div className="mb-4.5">
             <label
@@ -59,9 +98,8 @@ const FilmForm = () => {
             </label>
             <textarea
               rows={6}
-              {...register("description")}
+              {...register("description", { required: true })}
               placeholder="Film description"
-              required
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             ></textarea>
             {errors?.description?.type === "required" && (
@@ -79,38 +117,7 @@ const FilmForm = () => {
             <input
               type="file"
               className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-              {...register("poster", {
-                validate: (value?: File | FileList) => {
-                  if (value && "length" in value) {
-                    if (value.length > 1) {
-                      return false;
-                    }
-
-                    if (value.length === 0) {
-                      return true;
-                    }
-
-                    const acceptedFormats = [
-                      "png",
-                      "jpg",
-                      "jpeg",
-                      "svg",
-                      "webp",
-                    ];
-                    const fileExtension = value[0].name
-                      .split(".")
-                      .pop()
-                      ?.toLowerCase();
-                    if (
-                      !fileExtension ||
-                      !acceptedFormats.includes(fileExtension)
-                    ) {
-                      return false;
-                    }
-                  }
-                  return true;
-                },
-              })}
+              {...register("poster", { validate: validatePoster })}
             />
             {errors?.poster?.type === "validate" && (
               <p className="text-danger">Only 1 image file is allowed</p>
@@ -149,10 +156,10 @@ const FilmForm = () => {
             <Controller
               name="genres"
               control={control}
+              rules={{ required: true }}
               render={({ field }) => (
                 <Select
                   isMulti
-                  required
                   name={field.name}
                   options={Object.values(FilmGenre).map((genre) => {
                     return {
@@ -177,9 +184,13 @@ const FilmForm = () => {
                       "dark:border-form-strokedark dark:bg-form-input dark:text-white focus:bg-bodydark",
                   }}
                   closeMenuOnSelect={false}
+                  onChange={(values) => field.onChange(values)}
                 />
               )}
             />
+            {errors?.genres?.type === "required" && (
+              <p className="text-danger">Genres are required</p>
+            )}
           </div>
 
           <div className="mb-4.5">
@@ -213,7 +224,8 @@ const FilmForm = () => {
               render={({ field }) => (
                 <TagsInput
                   onChange={(tags) => {
-                    field.onChange(tags.join(","));
+                    const tagValues = tags.map((tag) => tag.value);
+                    field.onChange(tagValues.join(","));
                   }}
                   name={field.name}
                   placeholder="Actor names, serapated by comma (,)"
@@ -232,18 +244,8 @@ const FilmForm = () => {
             <input
               type="text"
               {...register("releasedAt", {
-                validate: (value) => {
-                  if (Number.isNaN(value)) {
-                    return false;
-                  }
-
-                  const releaseYear = +value;
-                  return (
-                    Number.isInteger(releaseYear) &&
-                    releaseYear >= 1900 &&
-                    releaseYear <= 2100
-                  );
-                },
+                validate: validateReleaseYear,
+                required: true,
               })}
               placeholder="Release year"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
@@ -252,6 +254,9 @@ const FilmForm = () => {
               <p className="text-danger">
                 Must be a valid year between 1900 and 2100
               </p>
+            )}
+            {errors?.releasedAt?.type === "required" && (
+              <p className="text-danger">Release year is required</p>
             )}
           </div>
 
@@ -265,21 +270,17 @@ const FilmForm = () => {
             <input
               type="text"
               {...register("durationInMinutes", {
-                validate: (value) => {
-                  if (Number.isNaN(value)) {
-                    return false;
-                  }
-
-                  const duration = +value;
-                  return duration > 0;
-                },
+                validate: validateDuration,
+                required: true,
               })}
-              required
               placeholder="Duration in minutes"
               className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
             {errors?.durationInMinutes?.type === "validate" && (
               <p className="text-danger">Must be a positive number</p>
+            )}
+            {errors?.durationInMinutes?.type === "required" && (
+              <p className="text-danger">Film duration is required</p>
             )}
           </div>
 
