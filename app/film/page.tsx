@@ -9,6 +9,7 @@ import {
 } from "@/constants/image-dimensions-in-rows";
 import { filmListTableColumns } from "./constants/film-list-table-columns.constant";
 import { getFilms } from "@/commons/api-calls.common";
+import OpenDetailsButton from "@/components/common/OpenDetailsButton";
 
 const FilmList = async ({
   searchParams: { page = "1", limit = "5" },
@@ -42,7 +43,7 @@ const FilmList = async ({
 
           return (
             <li
-              className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5 cursor-pointer"
+              className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
               key={film._id}
             >
               <div
@@ -90,6 +91,11 @@ const FilmList = async ({
                 <p className="text-sm text-meta-3">
                   {film.isActive ? "Active" : "Inactive"}
                 </p>
+              </div>
+              <div
+                className={`col-span-${filmListTableColumns["Action"]} flex items-center`}
+              >
+                <OpenDetailsButton detailsPageUrl={`/film/${film._id}`} />
               </div>
             </li>
           );
