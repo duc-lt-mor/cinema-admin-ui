@@ -19,7 +19,13 @@ export default function RootLayout({
       <body suppressHydrationWarning={true}>
         <QueryClientProvider client={queryClient}>
           <SessionProvider>
-            <ToastContainer />
+            <ToastContainer
+              position="top-center"
+              autoClose={2000}
+              hideProgressBar={false}
+              closeOnClick={true}
+              theme="light"
+            />
             {children}
           </SessionProvider>
         </QueryClientProvider>
