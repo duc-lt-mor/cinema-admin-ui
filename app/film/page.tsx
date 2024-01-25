@@ -11,7 +11,7 @@ import { filmListTableColumns } from "./constants/film-list-table-columns.consta
 import { getFilms } from "@/commons/api-calls.common";
 
 const FilmList = async ({
-  searchParams: { page, limit = "5" },
+  searchParams: { page = "1", limit = "5" },
 }: {
   searchParams: { page: string; limit?: string };
 }) => {

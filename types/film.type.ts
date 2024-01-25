@@ -1,4 +1,3 @@
-import { FilmGenre } from "@/app/film/constants/film-genres.constant";
 import { TBaseSchema } from "./base-schema.type";
 import { TPoster } from "./poster.type";
 
@@ -31,9 +30,9 @@ export type TFilmFormInput = {
   description: string;
   poster?: File | FileList;
   trailer?: string;
-  genres: FilmGenre;
+  genres: string;
   director: string;
-  cast?: string | string[];
+  cast?: string;
   releasedAt: string;
   durationInMinutes: string;
 };

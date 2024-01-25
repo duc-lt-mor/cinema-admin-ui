@@ -15,7 +15,6 @@
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
-    "@yaireo/tagify": "^4.18.3",
     "apexcharts": "^3.45.2",
     "autoprefixer": "10.4.17",
     "axios": "^1.6.5",
@@ -35,7 +34,6 @@
     "typescript": "5.3.3"
   },
   "devDependencies": {
-    "@types/yaireo__tagify": "^4.18.0",
     "prettier": "^3.2.4"
   }
 }

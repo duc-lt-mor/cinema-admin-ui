@@ -1,7 +1,9 @@
 import { MultiValueRemoveProps, components } from "react-select";
 import CloseIcon from "../common/svg/CloseIcon";
 
-const MultiValueRemove = (props: MultiValueRemoveProps) => {
+const MultiValueRemove = <TOptions,>(
+  props: MultiValueRemoveProps<TOptions, true>,
+) => {
   return (
     <components.MultiValueRemove {...props}>
       <CloseIcon />
