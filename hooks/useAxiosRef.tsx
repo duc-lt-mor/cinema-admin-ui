@@ -31,7 +31,8 @@ const getInstance = ({
     (result) => result,
     async (error: AxiosError<TResponseError>) => {
       const session = (await getServerSession(authConfig)) as TSessionWithJwt;
-      const { status, config } = error?.response!;
+      const status = error?.response?.status;
+      const config = error?.response?.config;
       if (
         status &&
         config &&

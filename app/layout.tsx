@@ -13,7 +13,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient, setQueryClient] = useState(() => new QueryClient());
   return (
     <html lang="en">
       <body suppressHydrationWarning={true}>
