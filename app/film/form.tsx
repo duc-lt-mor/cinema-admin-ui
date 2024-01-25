@@ -1,18 +1,22 @@
 "use client";
 import AuthLayout from "@/app/layouts/auth-layout";
-import DropdownIndicator from "@/components/CustomSelect/DropdownIndicator";
-import MultiValueRemove from "@/components/CustomSelect/MultiValueRemove";
 import { TFilmFormInput } from "@/types/film.type";
 import { Controller, useForm } from "react-hook-form";
-import Select from "react-select";
+import Select, { MultiValue } from "react-select";
 import { FilmGenre } from "./constants/film-genres.constant";
 import { useMutation } from "@tanstack/react-query";
 import { createFilm } from "@/commons/api-calls.common";
-import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import TagsInput from "@/components/TagInput/TagInput";
+import TagsInput, { TTag } from "@/components/TagInput/TagInput";
 import { TResponseError } from "@/types/response.type";
+import {
+  customSelectClassNames,
+  customSelectComponents,
+  customSelectOptions,
+} from "./constants/custom-select-configs.constant";
+import { ChangeEvent } from "react";
+import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 
 const FilmForm = (props: { film?: TFilmFormInput }) => {
   const {
@@ -33,32 +37,16 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
   });
 
   const filmFormOnSubmit = handleSubmit(async (data) => {
-    const { poster, trailer } = data;
-
-    if (poster && "length" in poster && poster.length === 1) {
-      data.poster = poster[0];
-    } else {
-      delete data.poster;
-    }
-
-    if (trailer === "") {
-      delete data.trailer;
-    }
-
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
-      formData.set(key, value as any);
+      if (value) {
+        formData.set(key, value as any);
+      }
     }
 
     mutation.mutate(formData, {
       onSuccess(data) {
-        toast.success(data?.data.message, {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          theme: "light",
-        });
+        toast.success(data?.data.message);
         router.push("/film");
       },
       onError(error) {
@@ -72,21 +60,14 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
         // leads to the error: property `message` does not exist on type `string`
         if (
           typeof serverResponse.detail === "object" &&
-          "message" in serverResponse.detail &&
-          typeof serverResponse.detail.message === "string"
+          "message" in serverResponse.detail
         ) {
-          errorMessage = serverResponse.detail.message;
+          errorMessage = JSON.stringify(serverResponse.detail.message);
         } else if (typeof serverResponse.detail === "string") {
           errorMessage = serverResponse.detail;
         }
 
-        toast.error(errorMessage, {
-          position: "top-center",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          theme: "light",
-        });
+        toast.error(errorMessage);
       },
     });
   });
@@ -180,13 +161,29 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
               Poster
             </label>
 
-            <input
-              {...register("poster", {
+            <Controller
+              name="poster"
+              control={control}
+              rules={{
                 required: false,
                 validate: validatePoster,
-              })}
-              type="file"
-              className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+              }}
+              render={({ field }) => {
+                const handlePosterChange = (
+                  e: ChangeEvent<HTMLInputElement>,
+                ) => {
+                  field.onChange(e.currentTarget.files?.item(0));
+                };
+
+                return (
+                  <input
+                    name={field.name}
+                    type="file"
+                    className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                    onChange={handlePosterChange}
+                  />
+                );
+              }}
             />
 
             {errors?.poster?.type === "validate" && (
@@ -201,15 +198,23 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
             >
               Trailer link
             </label>
-            <input
-              type="text"
-              {...register("trailer", {
+            <Controller
+              name="trailer"
+              control={control}
+              rules={{
                 required: false,
                 pattern:
                   /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/,
-              })}
-              placeholder="Format: http(s)://{domain}"
-              className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              }}
+              render={({ field }) => (
+                <input
+                  name={field.name}
+                  type="text"
+                  placeholder="Format: http(s)://{domain}"
+                  className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+                  value={field.value === "" ? undefined : field.value}
+                />
+              )}
             />
             {errors?.trailer?.type === "pattern" && (
               <p className="text-danger">Must be a full URL</p>
@@ -229,43 +234,23 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
               control={control}
               rules={{ required: true }}
               render={({ field }) => {
+                const handleSelectChange = (
+                  values: MultiValue<TCustomSelectOptions<FilmGenre>>,
+                ) => {
+                  const genres = values.map((val) => val.value);
+                  field.onChange(genres.join(","));
+                };
+
                 return (
                   <Select
                     name={field.name}
                     isMulti
-                    options={Object.values(FilmGenre).map<
-                      TCustomSelectOptions<FilmGenre>
-                    >((genre) => {
-                      return {
-                        value: genre,
-                        label: genre,
-                      };
-                    })}
+                    options={customSelectOptions}
                     placeholder="Select film genres..."
-                    components={{
-                      MultiValueRemove: MultiValueRemove<
-                        TCustomSelectOptions<FilmGenre>
-                      >,
-                      DropdownIndicator: DropdownIndicator<
-                        TCustomSelectOptions<FilmGenre>
-                      >,
-                    }}
+                    components={customSelectComponents}
                     closeMenuOnSelect={false}
-                    classNames={{
-                      control: () =>
-                        "relative z-20 w-full rounded border border-stroke p-1.5 pr-8 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:text-white",
-                      multiValue: () =>
-                        "m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-base font-medium dark:border-strokedark dark:bg-white/30",
-                      multiValueLabel: () => "text-body dark:text-white",
-                      input: () => "text-body dark:text-bodydark",
-                      placeholder: () => "ml-1 text-body dark:text-bodydark",
-                      menu: () =>
-                        "dark:border-form-strokedark dark:bg-form-input dark:text-white focus:bg-bodydark",
-                    }}
-                    onChange={(values) => {
-                      const genres = values.map((val) => val.value);
-                      field.onChange(genres.join(","));
-                    }}
+                    classNames={customSelectClassNames}
+                    onChange={handleSelectChange}
                   />
                 );
               }}
@@ -303,16 +288,20 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
             <Controller
               name="cast"
               control={control}
-              render={({ field }) => (
-                <TagsInput
-                  onChange={(tags) => {
-                    const tagValues = tags.map((tag) => tag.value);
-                    field.onChange(tagValues.join(","));
-                  }}
-                  name={field.name}
-                  placeholder="Actor names, serapated by comma (,)"
-                />
-              )}
+              render={({ field }) => {
+                const handleCastChange = (tags: TTag[]) => {
+                  const tagValues = tags.map((tag) => tag.value);
+                  field.onChange(tagValues.join(","));
+                };
+
+                return (
+                  <TagsInput
+                    onChange={handleCastChange}
+                    name={field.name}
+                    placeholder="Actor names, serapated by comma (,)"
+                  />
+                );
+              }}
             />
           </div>
 

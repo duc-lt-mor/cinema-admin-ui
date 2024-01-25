@@ -2,7 +2,7 @@
 import { useState, KeyboardEvent } from "react";
 import CloseIcon from "../common/svg/CloseIcon";
 
-type TTag = {
+export type TTag = {
   key: number;
   value: string;
 };
