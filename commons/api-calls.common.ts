@@ -2,8 +2,12 @@
 import { Api } from "@/constants/api.constant";
 import { TFilmList } from "@/types/film.type";
 import useAxiosRef from "@/hooks/useAxiosRef";
-import { TResponse } from "@/types/response.type";
-import { AxiosResponse } from "axios";
+import {
+  TResponse,
+  TResponseError,
+  TResponseSuccess,
+} from "@/types/response.type";
+import { AxiosError, AxiosResponse } from "axios";
 import { revalidatePath } from "next/cache";
 
 export const getFilms = async (pagination: { page: number; limit: number }) => {
@@ -46,16 +50,23 @@ export const refreshTokens = async (refreshToken: string) => {
 export const createFilm = async (body: FormData) => {
   try {
     const axiosRef = await useAxiosRef();
-    const result: AxiosResponse<TResponse<{ message: string }>> =
+    const result: AxiosResponse<TResponseSuccess<{ message: string }>> =
       await axiosRef.post(Api.FILM, body, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-    if (result.data?.type === "success") {
+    if (result.data) {
       revalidatePath("/films");
       return result.data;
     }
-  } catch (error) {}
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const response = error.response as AxiosResponse<TResponseError>;
+      if (response.data) {
+        throw JSON.stringify(response.data);
+      }
+    }
+  }
 };

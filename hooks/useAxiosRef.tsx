@@ -1,6 +1,6 @@
 import { refreshTokens } from "@/commons/api-calls.common";
-import axiosRef from "@/constants/axios-ref.constant";
 import { authConfig } from "@/constants/nextauth-options.constant";
+import { TResponseError } from "@/types/response.type";
 import { TSessionWithJwt } from "@/types/session-with-jwt.type";
 import axios, { AxiosError, HttpStatusCode } from "axios";
 import { getServerSession } from "next-auth";
@@ -10,7 +10,7 @@ const getInstance = ({
   refreshToken,
 }: {
   accessToken?: string;
-  refreshToken: string;
+  refreshToken?: string;
 }) => {
   const axiosRef = axios.create({
     baseURL: process.env.NEXT_PUBLIC_SERVER_DOMAIN,
@@ -29,10 +29,15 @@ const getInstance = ({
 
   axiosRef.interceptors.response.use(
     (result) => result,
-    async (error: AxiosError) => {
+    async (error: AxiosError<TResponseError>) => {
       const session = (await getServerSession(authConfig)) as TSessionWithJwt;
       const { status, config } = error?.response!;
-      if (status && config && status === HttpStatusCode.Unauthorized) {
+      if (
+        status &&
+        config &&
+        refreshToken &&
+        status === HttpStatusCode.Unauthorized
+      ) {
         const result = await refreshTokens(refreshToken);
         if (!result?.data) {
           return Promise.reject(error);
@@ -44,9 +49,10 @@ const getInstance = ({
         };
 
         config.headers.Authorization = `Bearer ${result.data.accessToken}`;
+        return axiosRef(config);
       }
 
-      return axiosRef(config);
+      throw error;
     },
   );
 
@@ -54,11 +60,12 @@ const getInstance = ({
 };
 
 const useAxiosRef = async () => {
-  const {
-    tokens: { accessToken, refreshToken },
-  } = (await getServerSession(authConfig)) as TSessionWithJwt;
+  const session = (await getServerSession(authConfig)) as TSessionWithJwt;
+  if (!session) {
+    return getInstance({ accessToken: undefined, refreshToken: undefined });
+  }
 
-  return getInstance({ accessToken, refreshToken });
+  return getInstance(session.tokens);
 };
 
 export default useAxiosRef;
