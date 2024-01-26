@@ -34,12 +34,9 @@ const FilmForm = (props: { film?: TFilm }) => {
     const transformDefaultValues = async () => {
       if (film) {
         const newDefaultValues = {
-          name: film.name,
-          description: film.description,
+          ...film,
           genres: film.genres.join(","),
-          releasedAt: film.releasedAt,
           durationInMinutes: film.durationInMinutes.toString(),
-          director: film.director,
         } as TFilmFormInput;
 
         if (film.poster) {
