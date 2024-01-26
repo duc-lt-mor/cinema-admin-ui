@@ -1,11 +1,11 @@
 "use client";
 import AuthLayout from "@/app/layouts/auth-layout";
-import { TFilmFormInput } from "@/types/film.type";
+import { TFilm, TFilmFormInput } from "@/types/film.type";
 import { Controller, useForm } from "react-hook-form";
 import Select, { MultiValue } from "react-select";
 import { FilmGenre } from "./constants/film-genres.constant";
 import { useMutation } from "@tanstack/react-query";
-import { createFilm } from "@/commons/api-calls.common";
+import { createFilm, updateFilm } from "@/commons/api-calls.common";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import TagsInput, { TTag } from "@/components/TagInput/TagInput";
@@ -15,23 +15,80 @@ import {
   customSelectComponents,
   customSelectOptions,
 } from "./constants/custom-select-configs.constant";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
+import axios from "axios";
+import { extractImageName } from "@/commons/extract-image-name.common";
+import imageNotFound from "../../public/images/image-not-found.jpeg";
+import {
+  IMAGE_HEIGHT_IN_ROW,
+  IMAGE_WIDTH_IN_ROW,
+} from "@/constants/image-dimensions-in-rows";
+import Image, { StaticImageData } from "next/image";
 
-const FilmForm = (props: { film?: TFilmFormInput }) => {
+const FilmForm = (props: { film?: TFilm }) => {
+  const [defaultValues, setDefaultValues] = useState<TFilmFormInput>();
+  const film = useMemo(() => props.film, [props]);
+
+  useEffect(() => {
+    const transformDefaultValues = async () => {
+      if (film) {
+        const newDefaultValues = {
+          ...film,
+          genres: film.genres.join(","),
+          durationInMinutes: film.durationInMinutes.toString(),
+        } as TFilmFormInput;
+
+        if (film.poster) {
+          const response = await axios.get(film.poster.url, {
+            responseType: "blob",
+          });
+
+          if (response) {
+            const fileName = extractImageName(film.poster.url);
+            newDefaultValues.poster = new File([response.data], fileName);
+          }
+        }
+
+        if (film.cast && film.cast.length > 0) {
+          newDefaultValues.cast = film.cast.join(",");
+        }
+
+        if (film.trailer) {
+          newDefaultValues.trailer = film.trailer;
+        }
+
+        setDefaultValues(newDefaultValues);
+      }
+    };
+
+    transformDefaultValues();
+  }, [props]);
+
   const {
     handleSubmit,
     register,
     formState: { errors },
     control,
+    reset,
   } = useForm<TFilmFormInput>({
-    defaultValues: props.film ?? {},
+    defaultValues,
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset]);
 
   const router = useRouter();
 
   const mutation = useMutation({
     mutationFn: (body: FormData) => {
+      if (film) {
+        return updateFilm(film._id, body);
+      }
+
       return createFilm(body);
     },
   });
@@ -50,7 +107,7 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
         router.push("/film");
       },
       onError(error) {
-        // error message format caught in `createFile`: `Error: ${error.response.data}`
+        // error message format caught in `createFilm`: `Error: ${error.response.data}`
         const serverResponse = JSON.parse(
           error.message.replace("Error: ", ""),
         ) as TResponseError;
@@ -72,46 +129,45 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
     });
   });
 
-  const validatePoster = (value?: TFilmFormInput["poster"]) => {
-    if (value && "length" in value) {
-      if (value.length > 1) {
-        return false;
-      }
-
-      if (value.length === 0) {
-        return true;
-      }
-
+  const validatePoster = useCallback((value?: TFilmFormInput["poster"]) => {
+    if (value) {
       const acceptedFormats = ["png", "jpg", "jpeg", "svg", "webp"];
-      const fileExtension = value[0].name.split(".").pop()?.toLowerCase();
+      const fileExtension = value.name.split(".").pop()?.toLowerCase();
       if (!fileExtension || !acceptedFormats.includes(fileExtension)) {
         return false;
       }
     }
+
     return true;
-  };
+  }, []);
 
-  const validateReleaseYear = (value: TFilmFormInput["releasedAt"]) => {
-    if (Number.isNaN(value)) {
-      return false;
-    }
+  const validateReleaseYear = useCallback(
+    (value: TFilmFormInput["releasedAt"]) => {
+      if (Number.isNaN(value)) {
+        return false;
+      }
 
-    const releaseYear = +value;
-    return (
-      Number.isInteger(releaseYear) &&
-      releaseYear >= 1900 &&
-      releaseYear <= 2100
-    );
-  };
+      const releaseYear = +value;
+      return (
+        Number.isInteger(releaseYear) &&
+        releaseYear >= 1900 &&
+        releaseYear <= 2100
+      );
+    },
+    [],
+  );
 
-  const validateDuration = (value: TFilmFormInput["durationInMinutes"]) => {
-    if (Number.isNaN(value)) {
-      return false;
-    }
+  const validateDuration = useCallback(
+    (value: TFilmFormInput["durationInMinutes"]) => {
+      if (Number.isNaN(value)) {
+        return false;
+      }
 
-    const duration = +value;
-    return duration > 0;
-  };
+      const duration = +value;
+      return duration > 0;
+    },
+    [],
+  );
 
   return (
     <AuthLayout>
@@ -169,19 +225,40 @@ const FilmForm = (props: { film?: TFilmFormInput }) => {
                 validate: validatePoster,
               }}
               render={({ field }) => {
+                let imageSrc: string | StaticImageData = field.value
+                  ? URL.createObjectURL(field.value)
+                  : "";
+
                 const handlePosterChange = (
                   e: ChangeEvent<HTMLInputElement>,
                 ) => {
-                  field.onChange(e.currentTarget.files?.item(0));
+                  const file = e.currentTarget.files?.item(0);
+                  if (file) {
+                    imageSrc = URL.createObjectURL(file);
+                  } else {
+                    imageSrc = imageNotFound;
+                  }
+
+                  field.onChange(file);
                 };
 
                 return (
-                  <input
-                    name={field.name}
-                    type="file"
-                    className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
-                    onChange={handlePosterChange}
-                  />
+                  <div className="flex flex-col gap-4">
+                    <input
+                      name={field.name}
+                      type="file"
+                      className="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-medium outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                      onChange={handlePosterChange}
+                    />
+                    {field.value && (
+                      <Image
+                        src={imageSrc}
+                        width={IMAGE_WIDTH_IN_ROW * 10}
+                        height={IMAGE_HEIGHT_IN_ROW * 10}
+                        alt="Image preview"
+                      />
+                    )}
+                  </div>
                 );
               }}
             />
