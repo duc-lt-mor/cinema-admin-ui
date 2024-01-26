@@ -1,7 +1,13 @@
 import { ReactNode } from "react";
-import { ReactPaginateProps } from "react-paginate";
 
 type SizeInGridLayout = number;
+
+export type PaginationProps = {
+  totalItems: number;
+  currentPage: number;
+  renderPageLink: (page: number) => string;
+  itemsPerPage: number;
+};
 
 export type TAppTableColumns = {
   [columnName: string]: SizeInGridLayout;
@@ -16,6 +22,6 @@ export type TAppTable<TRows extends any[]> = {
   columns: TAppTableColumns;
   rows: TRows;
   createRowElements: TCreateRowElements<TRows>;
-  handleCreateButtonOnClick: (...args: any) => void;
-  pagination: ReactPaginateProps;
+  createHref: string;
+  pagination: PaginationProps;
 };

@@ -24,3 +24,15 @@ export type TFilmList = Pick<
   | "durationInMinutes"
   | "isActive"
 >[];
+
+export type TFilmFormInput = {
+  name: string;
+  description: string;
+  poster?: File;
+  trailer?: string;
+  genres: string;
+  director: string;
+  cast?: string;
+  releasedAt: string;
+  durationInMinutes: string;
+};

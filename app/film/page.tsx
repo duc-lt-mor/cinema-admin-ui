@@ -1,107 +1,74 @@
 "use client";
 import AppTable from "@/components/Tables/AppTable";
 import AuthLayout from "../layouts/auth-layout";
-import { TAppTableColumns, TCreateRowElements } from "@/types/app-table.type";
 import { TFilmList } from "@/types/film.type";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import imageNotFound from "../../public/images/image-not-found.jpeg";
-import { useRouter } from "next/navigation";
-import { TResponseSuccess } from "@/types/response.type";
-import { HttpStatusCode } from "axios";
-import { useState } from "react";
 import "../pagination.css";
 import ActiveToggle from "@/components/ActiveToggle/ActiveToggle";
+import {
+  IMAGE_HEIGHT_IN_ROW,
+  IMAGE_WIDTH_IN_ROW,
+} from "@/constants/image-dimensions-in-rows";
+import { filmListTableColumns } from "./constants/film-list-table-columns.constant";
+import { getFilms } from "@/commons/api-calls.common";
+import OpenDetailsButton from "@/components/common/OpenDetailsButton";
+import {
+  DEFAULT_FILM_LIMIT,
+  DEFAULT_FILM_PAGE,
+} from "./constants/pagination-configs.constant";
+import { useQuery } from "@tanstack/react-query";
 
-const FilmList = () => {
-  const router = useRouter();
+const FilmList = ({
+  searchParams: { page = DEFAULT_FILM_PAGE, limit = DEFAULT_FILM_LIMIT },
+}: {
+  searchParams: { page: string; limit?: string };
+}) => {
+  let pageToNumber = parseInt(page, 10);
+  if (!pageToNumber || pageToNumber < 1) {
+    pageToNumber = 1;
+  }
 
-  const tableColumns: TAppTableColumns = {
-    Name: 3,
-    Genres: 2,
-    "Release year": 1,
-    Duration: 1,
-    Status: 1,
-  };
+  let limitToNumber = parseInt(limit, 10);
+  if (!limitToNumber || limitToNumber < 2) {
+    limitToNumber = 2;
+  }
 
-  const sampleFilms: TFilmList = Array.from(
-    { length: 22 },
-    (_, i) => i + 1,
-  ).map((filmId) => {
-    return {
-      _id: filmId.toString(),
-      name: `Film ${filmId}`,
-      genres: ["romance"],
-      releasedAt: (2000 + filmId).toString(),
-      durationInMinutes: 100 + filmId,
-      isActive: true,
-    };
-  });
-
-  const pageSize = 3;
-
-  const [result, setResult] = useState<
-    TResponseSuccess<{
-      films: TFilmList;
-      page: number;
-      filmsCount: number;
-    }>
-  >({
-    type: "success",
-    statusCode: HttpStatusCode.Ok,
-    data: {
-      films: sampleFilms.slice(0, pageSize),
-      page: 1,
-      filmsCount: sampleFilms.length,
+  // const result = await getFilms({ page: pageToNumber, limit: limitToNumber });
+  const { data: result } = useQuery({
+    queryKey: ["films"],
+    queryFn: () => {
+      return getFilms({ page: pageToNumber, limit: limitToNumber });
     },
   });
 
-  const onPageChange = (selectedItem: { selected: number }) => {
-    const { selected } = selectedItem;
-    setResult({
-      ...result,
-      data: {
-        ...result.data,
-        films: sampleFilms.slice(
-          selected * pageSize,
-          selected * pageSize + pageSize,
-        ),
-        page: selected + 1,
-      },
-    });
-  };
-
-  const createRowElements: TCreateRowElements<TFilmList> = (
-    films: TFilmList,
-  ) => {
-    if (films.length === 0) {
-      return (
-        <p className="border-t border-stroke py-4.5 px-4 dark:border-strokedark md:px-6 2xl:px-7.5 text-center">
-          No films are found
-        </p>
-      );
-    }
-
-    const handleRowClick = (filmId: string) => {
-      router.push(`/film/${filmId}`);
-    };
-    return (
+  const createRowElements = (films: TFilmList) => {
+    return films?.length > 0 ? (
       <ul>
-        {films.map((film, key) => {
+        {films.map((film) => {
+          let posterUrl: string | StaticImageData;
+          if (!film.poster || film.poster.url === "") {
+            posterUrl = imageNotFound;
+          } else {
+            posterUrl = film.poster.url;
+          }
+
+          const genresOnDisplay = film.genres.join(", ");
+
           return (
             <li
-              className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5 cursor-pointer"
-              key={key}
-              // onClick={() => handleRowClick(film._id)}
+              className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
+              key={film._id}
             >
               <div
-                className={`col-span-${tableColumns["Name"]} flex items-center`}
+                className={`col-span-${filmListTableColumns["Name"]} flex items-center`}
               >
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="h-12.5 w-15 rounded-md">
                     <Image
-                      src={film.poster?.url ?? imageNotFound}
-                      width={60}
-                      height={50}
+                      src={posterUrl}
+                      width={IMAGE_WIDTH_IN_ROW}
+                      height={IMAGE_HEIGHT_IN_ROW}
                       alt="Film poster"
                     />
                   </div>
@@ -112,52 +79,51 @@ const FilmList = () => {
                 </div>
               </div>
               <div
-                className={`col-span-${tableColumns["Genres"]} hidden items-center sm:flex`}
+                className={`col-span-${filmListTableColumns["Genres"]} hidden items-center sm:flex`}
               >
                 <p className="text-sm text-black dark:text-white">
-                  {film.genres.reduce((prevGenres, currGenre, idx, genres) => {
-                    let displayText = `${prevGenres}${currGenre}`;
-                    if (idx !== genres.length - 1) {
-                      displayText = `${displayText}, `;
-                    }
-                    return displayText;
-                  }, "")}
+                  {genresOnDisplay}
                 </p>
               </div>
               <div
-                className={`col-span-${tableColumns["Release year"]} flex items-center`}
+                className={`col-span-${filmListTableColumns["Release year"]} flex items-center`}
               >
                 <p className="text-sm text-black dark:text-white">
                   {film.releasedAt}
                 </p>
               </div>
               <div
-                className={`col-span-${tableColumns["Duration"]} flex items-center`}
+                className={`col-span-${filmListTableColumns["Duration"]} flex items-center`}
               >
                 <p className="text-sm text-black dark:text-white">
                   {film.durationInMinutes} minutes
                 </p>
               </div>
               <div
-                className={`col-span-${tableColumns["Status"]} flex items-center`}
+                className={`col-span-${filmListTableColumns["Status"]} flex items-center`}
               >
                 <ActiveToggle
-                  name={`film-${key}`}
+                  name={`film-${film._id}`}
                   onToggle={() => {
                     film.isActive = !film.isActive;
                   }}
                   checked={film.isActive}
                 />
               </div>
+              <div
+                className={`col-span-${filmListTableColumns["Action"]} flex items-center`}
+              >
+                <OpenDetailsButton detailsPageUrl={`/film/${film._id}`} />
+              </div>
             </li>
           );
         })}
       </ul>
+    ) : (
+      <p className="border-t border-stroke py-4.5 px-4 dark:border-strokedark md:px-6 2xl:px-7.5 text-center">
+        No films are found
+      </p>
     );
-  };
-
-  const handleCreateButtonOnClick = () => {
-    router.push("film/new");
   };
 
   return (
@@ -165,22 +131,16 @@ const FilmList = () => {
       <div className="flex flex-col gap-5">
         <AppTable
           title="Films"
-          columns={tableColumns}
-          rows={result.data.films}
+          columns={filmListTableColumns}
+          rows={result?.data?.films ?? []}
           createRowElements={createRowElements}
-          handleCreateButtonOnClick={handleCreateButtonOnClick}
+          createHref="/film/new"
           pagination={{
-            pageCount: Math.ceil(sampleFilms.length / pageSize),
-            onPageChange,
-            previousLabel: "< ",
-            nextLabel: " >",
-            containerClassName: "pagination",
-            pageClassName: "page-item",
-            activeClassName: "active",
-            breakLabel: "...",
-            disableInitialCallback: true,
-            marginPagesDisplayed: 2,
-            pageLinkClassName: "page-link",
+            totalItems: result?.data.filmsCount ?? 0,
+            currentPage: pageToNumber,
+            itemsPerPage: limitToNumber,
+            renderPageLink: (pageToNumber) =>
+              `film?page=${pageToNumber}&limit=${limitToNumber}`,
           }}
         />
       </div>
