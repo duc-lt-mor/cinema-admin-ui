@@ -5,6 +5,7 @@ import useAxiosRef from "@/hooks/useAxiosRef";
 import { TResponse, TResponseError } from "@/types/response.type";
 import { AxiosError, AxiosResponse } from "axios";
 import { revalidatePath } from "next/cache";
+import { EResponseType } from "@/constants/response-type.constant";
 
 export const getFilms = async (pagination: { page: number; limit: number }) => {
   try {
@@ -17,7 +18,7 @@ export const getFilms = async (pagination: { page: number; limit: number }) => {
       }>
     > = await axiosRef.get(Api.FILM, { params: pagination });
 
-    if (result.data?.type === "success") {
+    if (result.data?.type === EResponseType.SUCCESS) {
       return result.data;
     }
   } catch (error) {}
@@ -37,7 +38,7 @@ export const refreshTokens = async (refreshToken: string) => {
       },
     });
 
-    if (result.data?.type === "success") {
+    if (result.data?.type === EResponseType.SUCCESS) {
       return result.data;
     }
   } catch (error) {}
@@ -53,7 +54,7 @@ export const createFilm = async (body: FormData) => {
         },
       });
 
-    if (result.data.type === "success") {
+    if (result.data.type === EResponseType.SUCCESS) {
       revalidatePath("/films");
       return result.data;
     }
@@ -74,7 +75,7 @@ export const getFilmById = async (filmId: string) => {
       `${Api.FILM}/${filmId}`,
     );
 
-    if (result.data?.type === "success") {
+    if (result.data?.type === EResponseType.SUCCESS) {
       return result.data;
     }
   } catch (error) {}
@@ -90,7 +91,7 @@ export const updateFilm = async (filmId: string, body: FormData) => {
         },
       });
 
-    if (result.data.type === "success") {
+    if (result.data.type === EResponseType.SUCCESS) {
       revalidatePath("/films");
       return result.data;
     }
