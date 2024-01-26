@@ -10,9 +10,13 @@ import {
 import { filmListTableColumns } from "./constants/film-list-table-columns.constant";
 import { getFilms } from "@/commons/api-calls.common";
 import OpenDetailsButton from "@/components/common/OpenDetailsButton";
+import {
+  DEFAULT_FILM_LIMIT,
+  DEFAULT_FILM_PAGE,
+} from "./constants/pagination-configs.constant";
 
 const FilmList = async ({
-  searchParams: { page = "1", limit = "5" },
+  searchParams: { page = DEFAULT_FILM_PAGE, limit = DEFAULT_FILM_LIMIT },
 }: {
   searchParams: { page: string; limit?: string };
 }) => {

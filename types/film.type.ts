@@ -28,7 +28,7 @@ export type TFilmList = Pick<
 export type TFilmFormInput = {
   name: string;
   description: string;
-  poster?: File | FileList;
+  poster?: File;
   trailer?: string;
   genres: string;
   director: string;

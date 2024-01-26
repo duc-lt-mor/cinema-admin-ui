@@ -1,6 +1,6 @@
 "use server";
 import { Api } from "@/constants/api.constant";
-import { TFilmList } from "@/types/film.type";
+import { TFilm, TFilmList } from "@/types/film.type";
 import useAxiosRef from "@/hooks/useAxiosRef";
 import {
   TResponse,
@@ -69,4 +69,17 @@ export const createFilm = async (body: FormData) => {
       }
     }
   }
+};
+
+export const getFilmById = async (filmId: string) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<TResponse<TFilm>> = await axiosRef.get(
+      `${Api.FILM}/${filmId}`,
+    );
+
+    if (result.data?.type === "success") {
+      return result.data;
+    }
+  } catch (error) {}
 };
