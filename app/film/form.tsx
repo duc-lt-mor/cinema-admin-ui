@@ -5,7 +5,7 @@ import { Controller, useForm } from "react-hook-form";
 import Select, { MultiValue } from "react-select";
 import { FilmGenre } from "./constants/film-genres.constant";
 import { useMutation } from "@tanstack/react-query";
-import { createFilm } from "@/commons/api-calls.common";
+import { createFilm, updateFilm } from "@/commons/api-calls.common";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import TagsInput, { TTag } from "@/components/TagInput/TagInput";
@@ -15,7 +15,7 @@ import {
   customSelectComponents,
   customSelectOptions,
 } from "./constants/custom-select-configs.constant";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import axios from "axios";
 import { extractImageName } from "@/commons/extract-image-name.common";
@@ -28,9 +28,10 @@ import Image, { StaticImageData } from "next/image";
 
 const FilmForm = (props: { film?: TFilm }) => {
   const [defaultValues, setDefaultValues] = useState<TFilmFormInput>();
+  const film = useMemo(() => props.film, [props]);
+
   useEffect(() => {
     const transformDefaultValues = async () => {
-      const { film } = props;
       if (film) {
         const newDefaultValues = {
           name: film.name,
@@ -87,6 +88,10 @@ const FilmForm = (props: { film?: TFilm }) => {
 
   const mutation = useMutation({
     mutationFn: (body: FormData) => {
+      if (film) {
+        return updateFilm(film._id, body);
+      }
+
       return createFilm(body);
     },
   });
