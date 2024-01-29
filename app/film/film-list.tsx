@@ -18,13 +18,11 @@ const FilmList = ({ page, limit }: { page: number; limit: number }) => {
 
   const createRowElements = (films: TFilmList) => {
     return films?.length > 0 ? (
-      <>
-        <ul>
-          {films.map((film) => {
-            return <FilmRow film={film} key={film._id} />;
-          })}
-        </ul>
-      </>
+      <ul>
+        {films.map((film) => {
+          return <FilmRow film={film} key={film._id} />;
+        })}
+      </ul>
     ) : (
       <p className="border-t border-stroke py-4.5 px-4 dark:border-strokedark md:px-6 2xl:px-7.5 text-center">
         No films are found
