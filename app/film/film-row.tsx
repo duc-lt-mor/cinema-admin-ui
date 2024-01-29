@@ -12,13 +12,50 @@ import ActiveToggleButton from "@/components/ActiveToggleButton/ActiveToggleButt
 import { useState } from "react";
 import OpenDetailsButton from "@/components/common/OpenDetailsButton";
 import ConfirmDialog from "@/components/ConfirmDialog/ConfirmDialog";
+import { useMutation } from "@tanstack/react-query";
+import { toggleFilmActiveStatus } from "@/commons/api-calls.common";
+import { usePathname, useRouter } from "next/navigation";
+import { toast } from "react-toastify";
+import { TResponseError } from "@/types/response.type";
 
 const FilmRow = ({ film, key }: { film: TPartialFilm; key: string }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [toggleChecked, setToggleChecked] = useState(film.isActive);
+  const router = useRouter();
+  const currentPath = usePathname();
+  const toggleActiveMutation = useMutation({
+    mutationFn: (filmId: string) => {
+      return toggleFilmActiveStatus(filmId, currentPath);
+    },
+  });
 
   const handleConfirm = (filmId: string) => {
-    console.log(filmId);
+    toggleActiveMutation.mutate(filmId, {
+      onSuccess(data) {
+        toast.success(data?.data.message);
+        setToggleChecked(!toggleChecked);
+        router.refresh();
+      },
+      onError(error) {
+        const serverResponse = JSON.parse(
+          error.message.replace("Error: ", ""),
+        ) as TResponseError;
+        let errorMessage = "An unknown error has occurred";
+
+        // assigning `serverResponse.detail.message` logic to a variable
+        // leads to the error: property `message` does not exist on type `string`
+        if (
+          typeof serverResponse.detail === "object" &&
+          "message" in serverResponse.detail
+        ) {
+          errorMessage = JSON.stringify(serverResponse.detail.message);
+        } else if (typeof serverResponse.detail === "string") {
+          errorMessage = serverResponse.detail;
+        }
+
+        toast.error(errorMessage);
+      },
+    });
   };
 
   let posterUrl: string | StaticImageData;
