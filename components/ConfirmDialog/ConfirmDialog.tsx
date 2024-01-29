@@ -8,6 +8,7 @@ type ConfirmDialogProps = {
   onClose: Function;
   onConfirm: Function;
 };
+
 const ConfirmDialog = ({
   open,
   onClose,

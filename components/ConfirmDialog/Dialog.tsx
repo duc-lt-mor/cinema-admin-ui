@@ -11,6 +11,7 @@ const Dialog = ({ open, onClose, children }: DialogProps) => {
   if (!open) {
     return <></>;
   }
+
   return (
     <div className="fixed inset-0 z-50 overflow-auto backdrop-blur-sm flex">
       <div className="relative p-8 bg-black w-full max-w-md m-auto flex-col flex rounded-lg">
