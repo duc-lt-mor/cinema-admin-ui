@@ -3,27 +3,18 @@ import { TScreeningList } from "@/types/screening.type";
 import AuthLayout from "../layouts/auth-layout";
 import AppTable from "@/components/Tables/AppTable";
 import { screeningListTableColumns } from "./constants/screening-list-table-columns.constant";
-import { TResponseSuccess } from "@/types/response.type";
-import { EResponseType } from "@/constants/response-type.constant";
-import { HttpStatusCode } from "axios";
-import { sampleScreenings } from "./constants/stub-screenings";
 import ScreeningRow from "./screening-row";
+import { useQuery } from "@tanstack/react-query";
+import { getScreenings } from "@/commons/api-calls.common";
+import "../pagination.css";
 
 const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
-  const result: TResponseSuccess<{
-    screenings: TScreeningList;
-    screeningsCount: number;
-  }> = {
-    type: EResponseType.SUCCESS,
-    statusCode: HttpStatusCode.Ok,
-    data: {
-      screenings: sampleScreenings.slice(
-        (page - 1) * limit,
-        (page - 1) * limit + limit,
-      ),
-      screeningsCount: sampleScreenings.length,
+  const { data: result } = useQuery({
+    queryKey: [`screenings?page=${page}&limit=${limit}`],
+    queryFn: () => {
+      return getScreenings({ page, limit });
     },
-  };
+  });
 
   const createRowElements = (screenings: TScreeningList) => {
     return screenings?.length > 0 ? (

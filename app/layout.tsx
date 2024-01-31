@@ -19,18 +19,18 @@ export default function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <QueryClientProvider client={queryClient}>
-          <StoreProvider>
-            <SessionProvider>
-              <ToastContainer
-                position="top-center"
-                autoClose={2000}
-                hideProgressBar={false}
-                closeOnClick={true}
-                theme="light"
-              />
-              {children}
-            </SessionProvider>
-          </StoreProvider>
+          {/* <StoreProvider> */}
+          <SessionProvider>
+            <ToastContainer
+              position="top-center"
+              autoClose={2000}
+              hideProgressBar={false}
+              closeOnClick={true}
+              theme="light"
+            />
+            {children}
+          </SessionProvider>
+          {/* </StoreProvider> */}
         </QueryClientProvider>
       </body>
     </html>
