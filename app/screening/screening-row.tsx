@@ -13,8 +13,8 @@ import { screeningListTableColumns } from "./constants/screening-list-table-colu
 import { TScreening } from "@/types/screening.type";
 import DeleteButton from "@/components/DeleteButton/DeleteButton";
 import { format } from "date-fns";
-import { usePathname, useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteScreening } from "@/commons/api-calls.common";
 import { toast } from "react-toastify";
 import { TResponseError } from "@/types/response.type";
@@ -29,6 +29,7 @@ const ScreeningRow = ({
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const router = useRouter();
   const currentPath = usePathname();
+
   const deleteScreeningMutation = useMutation({
     mutationFn: (screeningId: string) => {
       return deleteScreening(screeningId, currentPath);
@@ -39,7 +40,7 @@ const ScreeningRow = ({
     deleteScreeningMutation.mutate(screeningId, {
       onSuccess(data) {
         toast.success(data?.data.message);
-        router.refresh();
+        router.replace(currentPath);
       },
       onError(error) {
         const serverResponse = JSON.parse(

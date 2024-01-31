@@ -7,6 +7,7 @@ import ScreeningRow from "./screening-row";
 import { useQuery } from "@tanstack/react-query";
 import { getScreenings } from "@/commons/api-calls.common";
 import "../pagination.css";
+import { useAppStore } from "@/lib/hooks";
 
 const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
   const { data: result } = useQuery({
@@ -15,6 +16,8 @@ const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
       return getScreenings({ page, limit });
     },
   });
+
+  const store = useAppStore();
 
   const createRowElements = (screenings: TScreeningList) => {
     return screenings?.length > 0 ? (

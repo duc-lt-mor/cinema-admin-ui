@@ -25,12 +25,12 @@ const ScreeningLoader = async ({
   const queryClient = new QueryClient();
   const { pageToNumber, limitToNumber } = paginationToNumber({ page, limit });
 
-  await queryClient.prefetchQuery({
-    queryKey: [`screenings?page=${pageToNumber}&limit=${limitToNumber}`],
-    queryFn: () => {
-      return getScreenings({ page: pageToNumber, limit: limitToNumber });
-    },
-  });
+  // await queryClient.prefetchQuery({
+  //   queryKey: [`screenings?page=${pageToNumber}&limit=${limitToNumber}`],
+  //   queryFn: () => {
+  //     return getScreenings({ page: pageToNumber, limit: limitToNumber });
+  //   },
+  // });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
