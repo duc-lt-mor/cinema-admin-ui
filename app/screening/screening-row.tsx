@@ -17,55 +17,29 @@ import { usePathname, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { TResponseError } from "@/types/response.type";
 import { screeningListTableColumns } from "./constants/screening-list-table-columns.constant";
+import { TScreening } from "@/types/screening.type";
+import DeleteButton from "@/components/DeleteButton/DeleteButton";
 
-const ScreeningRow = ({ film, key }: { film: TPartialFilm; key: string }) => {
+const ScreeningRow = ({
+  screening,
+  key,
+}: {
+  screening: TScreening;
+  key: string;
+}) => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [toggleChecked, setToggleChecked] = useState(film.isActive);
-  const router = useRouter();
-  const currentPath = usePathname();
-  const toggleActiveMutation = useMutation({
-    mutationFn: (filmId: string) => {
-      return toggleFilmActiveStatus(filmId, currentPath);
-    },
-  });
 
-  const handleConfirm = (filmId: string) => {
-    toggleActiveMutation.mutate(filmId, {
-      onSuccess(data) {
-        toast.success(data?.data.message);
-        setToggleChecked(!toggleChecked);
-        router.refresh();
-      },
-      onError(error) {
-        const serverResponse = JSON.parse(
-          error.message.replace("Error: ", ""),
-        ) as TResponseError;
-        let errorMessage = "An unknown error has occurred";
-
-        // assigning `serverResponse.detail.message` logic to a variable
-        // leads to the error: property `message` does not exist on type `string`
-        if (
-          typeof serverResponse.detail === "object" &&
-          "message" in serverResponse.detail
-        ) {
-          errorMessage = JSON.stringify(serverResponse.detail.message);
-        } else if (typeof serverResponse.detail === "string") {
-          errorMessage = serverResponse.detail;
-        }
-
-        toast.error(errorMessage);
-      },
-    });
+  const handleConfirm = (screeningId: string) => {
+    setOpenDialog(false);
   };
 
   let posterUrl: string | StaticImageData;
-  if (!film.poster || film.poster.url === "") {
+  if (!screening.film.poster || screening.film.poster.url === "") {
     posterUrl = imageNotFound;
   } else {
-    posterUrl = film.poster.url;
+    posterUrl = screening.film.poster.url;
   }
 
-  const genresOnDisplay = film.genres.join(", ");
   return (
     <li
       className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5"
@@ -84,33 +58,40 @@ const ScreeningRow = ({ film, key }: { film: TPartialFilm; key: string }) => {
             />
           </div>
 
-          <p className="text-sm text-black dark:text-white">{film.name}</p>
+          <p className="text-sm text-black dark:text-white">
+            {screening.film.name}
+          </p>
         </div>
       </div>
       <div
         className={`col-span-${screeningListTableColumns["Auditorium"]} hidden items-center sm:flex`}
       >
-        <p className="text-sm text-black dark:text-white">{genresOnDisplay}</p>
+        <p className="text-sm text-black dark:text-white">
+          {screening.auditorium.name}
+        </p>
       </div>
       <div
         className={`col-span-${screeningListTableColumns["Starts at"]} flex items-center`}
       >
-        <p className="text-sm text-black dark:text-white">{film.releasedAt}</p>
+        <p className="text-sm text-black dark:text-white">
+          {screening.startsAt}
+        </p>
       </div>
       <div
-        className={`col-span-${screeningListTableColumns["Action"]} flex items-center`}
+        className={`col-span-${screeningListTableColumns["Action"]} flex items-center gap-4`}
       >
-        <OpenDetailsButton detailsPageUrl={`/film/${film._id}`} />
+        <OpenDetailsButton detailsPageUrl={`/screening/${screening._id}`} />
+        <DeleteButton onClick={() => setOpenDialog(true)} />
       </div>
       <ConfirmDialog
         title="Toggle film active status"
         open={openDialog}
         onClose={() => setOpenDialog(false)}
-        onConfirm={() => handleConfirm(film._id)}
+        onConfirm={() => handleConfirm(screening._id)}
       >
         <p>
-          Are you sure you want to mark <strong>{film.name}</strong> as{" "}
-          <strong>{film.isActive ? "inactive" : "active"}</strong>?
+          Are you sure you want to delete this screening? This action cannot be
+          undone!
         </p>
       </ConfirmDialog>
     </li>

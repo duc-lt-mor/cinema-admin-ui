@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const OpenDetailsButton = (props: { detailsPageUrl: string }) => {
   return (
-    <button className="hover:cursor-pointer" title="See film details">
+    <button className="hover:cursor-pointer" title="See details">
       <Link href={props.detailsPageUrl}>
         <svg
           xmlns="http://www.w3.org/2000/svg"

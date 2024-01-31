@@ -1,40 +1,18 @@
 import { TBaseSchema } from "./base-schema.type";
-import { TPoster } from "./poster.type";
+import { TFilm } from "./film.type";
 
 export type TScreening = TBaseSchema & {
-  name: string;
-  description: string;
-  poster?: TPoster;
-  trailer: string;
-  genres: string[];
-  director: string;
-  cast?: string[];
-  releasedAt: string;
-  durationInMinutes: number;
-  isActive: boolean;
+  film: Pick<TFilm, "name" | "poster">;
+  auditorium: {
+    name: string;
+  };
+  startsAt: string;
 };
 
-export type TPartialScreening = Pick<
-  TScreening,
-  | "_id"
-  | "name"
-  | "poster"
-  | "genres"
-  | "releasedAt"
-  | "durationInMinutes"
-  | "isActive"
->;
-
-export type TScreeningList = TPartialScreening[];
+export type TScreeningList = TScreening[];
 
 export type TScreeningFormInput = {
-  name: string;
-  description: string;
-  poster?: File;
-  trailer?: string;
-  genres: string;
-  director: string;
-  cast?: string;
-  releasedAt: string;
-  durationInMinutes: string;
+  filmId: string;
+  auditoriumId: string;
+  startsAt: string;
 };
