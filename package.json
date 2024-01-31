@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-jvectormap/core": "^1.0.4",
     "@react-jvectormap/unitedstates": "^1.0.1",
+    "@reduxjs/toolkit": "^2.1.0",
     "@tanstack/react-query": "^5.17.19",
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
@@ -28,6 +29,7 @@
     "react-apexcharts": "^1.4.1",
     "react-dom": "18.2.0",
     "react-hook-form": "^7.49.3",
+    "react-redux": "^9.1.0",
     "react-select": "^5.8.0",
     "react-toastify": "^10.0.4",
     "tailwindcss": "3.4.1",

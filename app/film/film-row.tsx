@@ -2,7 +2,7 @@
 
 import { TPartialFilm } from "@/types/film.type";
 import { filmListTableColumns } from "./constants/film-list-table-columns.constant";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import imageNotFound from "@/public/images/image-not-found.jpeg";
 import {
   IMAGE_HEIGHT_IN_ROW,
@@ -19,8 +19,8 @@ import { toast } from "react-toastify";
 import { TResponseError } from "@/types/response.type";
 
 const FilmRow = ({ film, key }: { film: TPartialFilm; key: string }) => {
-  const [openDialog, setOpenDialog] = useState(false);
-  const [toggleChecked, setToggleChecked] = useState(film.isActive);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [toggleChecked, setToggleChecked] = useState<boolean>(film.isActive);
   const router = useRouter();
   const currentPath = usePathname();
   const toggleActiveMutation = useMutation({

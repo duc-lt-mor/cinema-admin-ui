@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import StoreProvider from "./store-provider";
 
 export default function RootLayout({
   children,
@@ -18,16 +19,18 @@ export default function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning={true}>
         <QueryClientProvider client={queryClient}>
-          <SessionProvider>
-            <ToastContainer
-              position="top-center"
-              autoClose={2000}
-              hideProgressBar={false}
-              closeOnClick={true}
-              theme="light"
-            />
-            {children}
-          </SessionProvider>
+          <StoreProvider>
+            <SessionProvider>
+              <ToastContainer
+                position="top-center"
+                autoClose={2000}
+                hideProgressBar={false}
+                closeOnClick={true}
+                theme="light"
+              />
+              {children}
+            </SessionProvider>
+          </StoreProvider>
         </QueryClientProvider>
       </body>
     </html>
