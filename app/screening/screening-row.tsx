@@ -1,6 +1,5 @@
 "use client";
 
-import { TPartialFilm } from "@/types/film.type";
 import Image from "next/image";
 import imageNotFound from "@/public/images/image-not-found.jpeg";
 import {
@@ -10,11 +9,6 @@ import {
 import { useMemo, useState } from "react";
 import OpenDetailsButton from "@/components/common/OpenDetailsButton";
 import ConfirmDialog from "@/components/ConfirmDialog/ConfirmDialog";
-import { useMutation } from "@tanstack/react-query";
-import { toggleFilmActiveStatus } from "@/commons/api-calls.common";
-import { usePathname, useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { TResponseError } from "@/types/response.type";
 import { screeningListTableColumns } from "./constants/screening-list-table-columns.constant";
 import { TScreening } from "@/types/screening.type";
 import DeleteButton from "@/components/DeleteButton/DeleteButton";
