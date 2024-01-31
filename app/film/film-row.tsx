@@ -9,7 +9,7 @@ import {
   IMAGE_WIDTH_IN_ROW,
 } from "@/constants/image-dimensions-in-rows";
 import ActiveToggleButton from "@/components/ActiveToggleButton/ActiveToggleButton";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import OpenDetailsButton from "@/components/common/OpenDetailsButton";
 import ConfirmDialog from "@/components/ConfirmDialog/ConfirmDialog";
 import { useMutation } from "@tanstack/react-query";
@@ -58,12 +58,12 @@ const FilmRow = ({ film, key }: { film: TPartialFilm; key: string }) => {
     });
   };
 
-  let posterUrl: string | StaticImageData;
-  if (!film.poster || film.poster.url === "") {
-    posterUrl = imageNotFound;
-  } else {
-    posterUrl = film.poster.url;
-  }
+  const posterUrl = useMemo(() => {
+    if (!film.poster || film.poster.url === "") {
+      return imageNotFound;
+    }
+    return film.poster.url;
+  }, [film]);
 
   const genresOnDisplay = film.genres.join(", ");
   return (
