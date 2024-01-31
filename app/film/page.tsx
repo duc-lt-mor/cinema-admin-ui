@@ -9,6 +9,7 @@ import {
   DEFAULT_FILM_PAGE,
 } from "./constants/pagination-configs.constant";
 import FilmList from "./film-list";
+import { paginationToNumber } from "@/commons/pagination-to-number.common";
 
 const FilmLoader = async ({
   searchParams: { page = DEFAULT_FILM_PAGE, limit = DEFAULT_FILM_LIMIT },
@@ -19,15 +20,7 @@ const FilmLoader = async ({
   };
 }) => {
   const queryClient = new QueryClient();
-  let pageToNumber = parseInt(page, 10);
-  if (!pageToNumber || pageToNumber < 1) {
-    pageToNumber = 1;
-  }
-
-  let limitToNumber = parseInt(limit, 10);
-  if (!limitToNumber || limitToNumber < 2) {
-    limitToNumber = 2;
-  }
+  const { pageToNumber, limitToNumber } = paginationToNumber({ page, limit });
 
   await queryClient.prefetchQuery({
     queryKey: [`films?page=${pageToNumber}&limit=${limitToNumber}`],
