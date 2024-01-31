@@ -104,3 +104,26 @@ export const updateFilm = async (filmId: string, body: FormData) => {
     }
   }
 };
+
+export const toggleFilmActiveStatus = async (
+  filmId: string,
+  currentClientPath: string,
+) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<TResponse<{ message: string }>> =
+      await axiosRef.patch(`${Api.FILM}/${filmId}/status`, null);
+
+    if (result.data.type === EResponseType.SUCCESS) {
+      revalidatePath(currentClientPath);
+      return result.data;
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const response = error.response as AxiosResponse<TResponseError>;
+      if (response.data) {
+        throw JSON.stringify(response.data);
+      }
+    }
+  }
+};

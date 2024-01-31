@@ -6,5 +6,5 @@ export const filmListTableColumns: TAppTableColumns = {
   "Release year": 1,
   Duration: 1,
   Status: 1,
-  Action: 0.5,
+  Action: 1,
 };

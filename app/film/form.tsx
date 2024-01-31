@@ -63,7 +63,7 @@ const FilmForm = (props: { film?: TFilm }) => {
     };
 
     transformDefaultValues();
-  }, [props]);
+  }, [props, film]);
 
   const {
     handleSubmit,
