@@ -1,14 +1,13 @@
 "use client";
 
 import { TPartialFilm } from "@/types/film.type";
-import Image, { StaticImageData } from "next/image";
+import Image from "next/image";
 import imageNotFound from "@/public/images/image-not-found.jpeg";
 import {
   IMAGE_HEIGHT_IN_ROW,
   IMAGE_WIDTH_IN_ROW,
 } from "@/constants/image-dimensions-in-rows";
-import ActiveToggleButton from "@/components/ActiveToggleButton/ActiveToggleButton";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import OpenDetailsButton from "@/components/common/OpenDetailsButton";
 import ConfirmDialog from "@/components/ConfirmDialog/ConfirmDialog";
 import { useMutation } from "@tanstack/react-query";
@@ -27,18 +26,18 @@ const ScreeningRow = ({
   screening: TScreening;
   key: string;
 }) => {
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openDialog, setOpenDialog] = useState<boolean>(false);
 
   const handleConfirm = (screeningId: string) => {
     setOpenDialog(false);
   };
 
-  let posterUrl: string | StaticImageData;
-  if (!screening.film.poster || screening.film.poster.url === "") {
-    posterUrl = imageNotFound;
-  } else {
-    posterUrl = screening.film.poster.url;
-  }
+  const posterUrl = useMemo(() => {
+    if (!screening.film.poster?.url) {
+      return imageNotFound;
+    }
+    return screening.film.poster.url;
+  }, [screening]);
 
   return (
     <li
