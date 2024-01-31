@@ -3,6 +3,6 @@ export enum Api {
   SIGN_OUT = "/auth/sign-out",
   FILM = "/admin/films",
   AUDITORIUM = "/admin/auditoriums",
-  SCREENING = "/admin/screenings",
+  SCREENING = "/screenings",
   REFRESH_TOKEN = "/auth/refresh-tokens",
 }

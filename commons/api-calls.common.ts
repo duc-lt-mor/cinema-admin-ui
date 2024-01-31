@@ -6,6 +6,7 @@ import { TResponse, TResponseError } from "@/types/response.type";
 import { AxiosError, AxiosResponse } from "axios";
 import { revalidatePath } from "next/cache";
 import { EResponseType } from "@/constants/response-type.constant";
+import { TScreeningList } from "@/types/screening.type";
 
 export const getFilms = async (pagination: { page: number; limit: number }) => {
   try {
@@ -126,4 +127,24 @@ export const toggleFilmActiveStatus = async (
       }
     }
   }
+};
+
+export const getScreenings = async (pagination: {
+  page: number;
+  limit: number;
+}) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<
+      TResponse<{
+        screenings: TScreeningList;
+        page: number;
+        screeningsCount: number;
+      }>
+    > = await axiosRef.get(Api.SCREENING, { params: pagination });
+
+    if (result.data?.type === EResponseType.SUCCESS) {
+      return result.data;
+    }
+  } catch (error) {}
 };

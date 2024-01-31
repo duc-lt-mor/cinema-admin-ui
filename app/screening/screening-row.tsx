@@ -12,6 +12,7 @@ import ConfirmDialog from "@/components/ConfirmDialog/ConfirmDialog";
 import { screeningListTableColumns } from "./constants/screening-list-table-columns.constant";
 import { TScreening } from "@/types/screening.type";
 import DeleteButton from "@/components/DeleteButton/DeleteButton";
+import { format } from "date-fns";
 
 const ScreeningRow = ({
   screening,
@@ -67,7 +68,7 @@ const ScreeningRow = ({
         className={`col-span-${screeningListTableColumns["Starts at"]} flex items-center`}
       >
         <p className="text-sm text-black dark:text-white">
-          {screening.startsAt}
+          {format(screening.startsAt, "yyyy-MM-dd HH:mm")}
         </p>
       </div>
       <div
