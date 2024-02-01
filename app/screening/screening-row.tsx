@@ -17,7 +17,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteScreening } from "@/commons/api-calls.common";
 import { toast } from "react-toastify";
 import { TResponseError } from "@/types/response.type";
-import { screeningKeys } from "./query-key-factories";
+import { screeningKeys } from "./constants/query-key-factory.constant";
 
 const ScreeningRow = ({
   screening,

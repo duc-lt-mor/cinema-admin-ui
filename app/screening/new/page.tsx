@@ -1,7 +1,7 @@
-import AuthLayout from "@/app/layouts/auth-layout";
+import ScreeningForm from "../form";
 
 const CreateScreening = () => {
-  return <AuthLayout>create screening</AuthLayout>;
+  return <ScreeningForm />;
 };
 
 export default CreateScreening;

@@ -7,6 +7,7 @@ import { AxiosError, AxiosResponse } from "axios";
 import { revalidatePath } from "next/cache";
 import { EResponseType } from "@/constants/response-type.constant";
 import { TScreeningList } from "@/types/screening.type";
+import { TAuditoriumList } from "@/types/auditorium.type";
 
 export const getFilms = async (pagination: { page: number; limit: number }) => {
   try {
@@ -166,4 +167,64 @@ export const deleteScreening = async (screeningId: string) => {
       }
     }
   }
+};
+
+export const createScreening = async (body: FormData) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<TResponse<{ message: string }>> =
+      await axiosRef.post(Api.SCREENING, body, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+    if (result.data.type === EResponseType.SUCCESS) {
+      revalidatePath("/screening");
+      return result.data;
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const response = error.response as AxiosResponse<TResponseError>;
+      if (response.data) {
+        throw JSON.stringify(response.data);
+      }
+    }
+  }
+};
+
+export const updateScreening = async (screeningId: string, body: FormData) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<TResponse<{ message: string }>> =
+      await axiosRef.patch(`${Api.SCREENING}/${screeningId}`, body, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+    if (result.data.type === EResponseType.SUCCESS) {
+      revalidatePath("/screening");
+      return result.data;
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const response = error.response as AxiosResponse<TResponseError>;
+      if (response.data) {
+        throw JSON.stringify(response.data);
+      }
+    }
+  }
+};
+
+export const getAuditoriums = async () => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<TResponse<TAuditoriumList>> =
+      await axiosRef.get(Api.AUDITORIUM);
+
+    if (result.data?.type === EResponseType.SUCCESS) {
+      return result.data;
+    }
+  } catch (error) {}
 };
