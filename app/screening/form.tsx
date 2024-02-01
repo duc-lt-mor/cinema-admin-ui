@@ -3,14 +3,22 @@ import AuthLayout from "@/app/layouts/auth-layout";
 import { TFilm } from "@/types/film.type";
 import { Controller, useForm } from "react-hook-form";
 import Select, { SingleValue } from "react-select";
-import { useQueries } from "@tanstack/react-query";
-import { getAuditoriums, getFilms } from "@/commons/api-calls.common";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import {
+  createScreening,
+  getAuditoriums,
+  getFilms,
+  updateScreening,
+} from "@/commons/api-calls.common";
 import { useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { TScreening, TScreeningFormInput } from "@/types/screening.type";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
 import { auditoriumKeys } from "../auditorium/constants/query-key-factory.constant";
 import { TAuditorium } from "@/types/auditorium.type";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { TResponseError } from "@/types/response.type";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -41,6 +49,8 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     defaultValues,
   });
 
+  const router = useRouter();
+
   const filmsPage = 1;
   const filmsCount = 30;
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
@@ -60,6 +70,16 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     ],
   });
 
+  const screeningMutation = useMutation({
+    mutationFn: (body: FormData) => {
+      if (screening) {
+        return updateScreening(screening._id, body);
+      }
+
+      return createScreening(body);
+    },
+  });
+
   useEffect(() => {
     if (defaultValues) {
       reset(defaultValues);
@@ -69,10 +89,32 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
   const screeningFormOnSubmit = handleSubmit(async (data) => {
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
-      if (value) {
-        formData.set(key, value as any);
-      }
+      formData.set(key, value);
     }
+
+    screeningMutation.mutate(formData, {
+      onSuccess(data) {
+        toast.success(data?.data.message);
+        router.push("/screening");
+      },
+      onError(error) {
+        const serverResponse = JSON.parse(
+          error.message.replace("Error: ", ""),
+        ) as TResponseError;
+        let errorMessage = "An unknown error has occurred";
+
+        if (
+          typeof serverResponse.detail === "object" &&
+          "message" in serverResponse.detail
+        ) {
+          errorMessage = JSON.stringify(serverResponse.detail.message);
+        } else if (typeof serverResponse.detail === "string") {
+          errorMessage = serverResponse.detail;
+        }
+
+        toast.error(errorMessage);
+      },
+    });
   });
 
   return (

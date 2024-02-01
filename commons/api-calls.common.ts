@@ -175,7 +175,7 @@ export const createScreening = async (body: FormData) => {
     const result: AxiosResponse<TResponse<{ message: string }>> =
       await axiosRef.post(Api.SCREENING, body, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
 
