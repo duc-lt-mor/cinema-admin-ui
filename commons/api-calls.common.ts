@@ -6,7 +6,11 @@ import { TResponse, TResponseError } from "@/types/response.type";
 import { AxiosError, AxiosResponse } from "axios";
 import { revalidatePath } from "next/cache";
 import { EResponseType } from "@/constants/response-type.constant";
-import { TScreeningList } from "@/types/screening.type";
+import {
+  TScreening,
+  TScreeningList,
+  TScreeningSlot,
+} from "@/types/screening.type";
 import { TAuditoriumList } from "@/types/auditorium.type";
 
 export const getFilms = async (pagination: { page: number; limit: number }) => {
@@ -150,6 +154,22 @@ export const getScreenings = async (pagination: {
   } catch (error) {}
 };
 
+export const getScreeningById = async (screeningId: string) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<
+      TResponse<{
+        screening: TScreening;
+        slots: TScreeningSlot[];
+      }>
+    > = await axiosRef.get(`${Api.SCREENING}/${screeningId}`);
+
+    if (result.data?.type === EResponseType.SUCCESS) {
+      return result.data;
+    }
+  } catch (error) {}
+};
+
 export const deleteScreening = async (screeningId: string) => {
   try {
     const axiosRef = await useAxiosRef();
@@ -197,9 +217,9 @@ export const updateScreening = async (screeningId: string, body: FormData) => {
   try {
     const axiosRef = await useAxiosRef();
     const result: AxiosResponse<TResponse<{ message: string }>> =
-      await axiosRef.patch(`${Api.SCREENING}/${screeningId}`, body, {
+      await axiosRef.put(`${Api.SCREENING}/${screeningId}`, body, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": "application/json",
         },
       });
 

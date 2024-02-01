@@ -10,7 +10,7 @@ import {
   getFilms,
   updateScreening,
 } from "@/commons/api-calls.common";
-import { useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { TScreening, TScreeningFormInput } from "@/types/screening.type";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
@@ -19,6 +19,8 @@ import { TAuditorium } from "@/types/auditorium.type";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { TResponseError } from "@/types/response.type";
+import { format } from "date-fns";
+import { toVnTimezone } from "@/commons/to-vn-timezone.common";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -28,9 +30,9 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     const transformDefaultValues = async () => {
       if (screening) {
         const newDefaultValues = {
-          ...screening,
           filmId: screening.film._id,
           auditoriumId: screening.auditorium._id,
+          startsAt: format(screening.startsAt, "yyyy-MM-dd'T'HH:mm"),
         } as TScreeningFormInput;
 
         setDefaultValues(newDefaultValues);
@@ -156,6 +158,12 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                     }
                     placeholder="Select film..."
                     onChange={handleSelectChange}
+                    {...(screening && {
+                      defaultValue: {
+                        value: screening.film._id,
+                        label: screening.film.name,
+                      },
+                    })}
                   />
                 );
               }}
@@ -199,6 +207,12 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                     }
                     placeholder="Select auditorium..."
                     onChange={handleSelectChange}
+                    {...(screening && {
+                      defaultValue: {
+                        value: screening.auditorium._id,
+                        label: screening.auditorium.name,
+                      },
+                    })}
                   />
                 );
               }}
@@ -220,11 +234,16 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
               control={control}
               rules={{ required: true }}
               render={({ field }) => {
+                const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+                  field.onChange(toVnTimezone(event.currentTarget.value));
+                };
+
                 return (
                   <input
                     type="datetime-local"
                     className="custom-input-date custom-input-date-1 w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    onChange={field.onChange}
+                    onChange={handleChange}
+                    defaultValue={field.value}
                   />
                 );
               }}
