@@ -7,19 +7,19 @@ import { createSlice } from "@reduxjs/toolkit";
 const screeningSlice = createSlice({
   name: "screening",
   initialState: {
-    currentPage: DEFAULT_SCREENING_PAGE,
-    currentLimit: DEFAULT_SCREENING_LIMIT,
+    currentPage: +DEFAULT_SCREENING_PAGE,
+    currentLimit: +DEFAULT_SCREENING_LIMIT,
   },
   reducers: {
     setCurrentPage(
       state,
-      action: { type: string; payload: { currentPage: string } },
+      action: { type: string; payload: { currentPage: number } },
     ) {
       state.currentPage = action.payload.currentPage;
     },
     setCurrentLimit(
       state,
-      action: { type: string; payload: { currentLimit: string } },
+      action: { type: string; payload: { currentLimit: number } },
     ) {
       state.currentLimit = action.payload.currentLimit;
     },

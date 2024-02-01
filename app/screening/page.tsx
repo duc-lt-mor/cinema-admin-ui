@@ -8,7 +8,6 @@ import {
   DEFAULT_SCREENING_PAGE,
 } from "./constants/pagination-configs.constant";
 import ScreeningList from "./screening-list";
-import { getScreenings } from "@/commons/api-calls.common";
 import { paginationToNumber } from "@/commons/pagination-to-number.common";
 
 const ScreeningLoader = async ({
@@ -24,13 +23,6 @@ const ScreeningLoader = async ({
 }) => {
   const queryClient = new QueryClient();
   const { pageToNumber, limitToNumber } = paginationToNumber({ page, limit });
-
-  // await queryClient.prefetchQuery({
-  //   queryKey: [`screenings?page=${pageToNumber}&limit=${limitToNumber}`],
-  //   queryFn: () => {
-  //     return getScreenings({ page: pageToNumber, limit: limitToNumber });
-  //   },
-  // });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
