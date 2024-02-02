@@ -20,6 +20,10 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { TResponseError } from "@/types/response.type";
 import { isFuture, isValid } from "date-fns";
+import {
+  FILMS_LOAD_COUNT,
+  FILMS_LOAD_PAGE,
+} from "./constants/films-load-in-form-configs.constant";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -52,8 +56,8 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
 
   const router = useRouter();
 
-  const filmsPage = 1;
-  const filmsCount = 30;
+  const filmsPage = FILMS_LOAD_PAGE;
+  const filmsCount = FILMS_LOAD_COUNT;
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
     queries: [
       {
@@ -93,6 +97,32 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
       return isValid(date) && isFuture(date);
     },
     [],
+  );
+
+  const filmSelectOptions = useMemo(
+    () =>
+      filmResult?.data.films?.map<TCustomSelectOptions<TFilm["_id"]>>(
+        (film) => {
+          return {
+            value: film._id,
+            label: film.name,
+          };
+        },
+      ) ?? [],
+    [filmResult],
+  );
+
+  const auditoriumSelectOptions = useMemo(
+    () =>
+      auditoriumResult?.data?.map<TCustomSelectOptions<TAuditorium["_id"]>>(
+        (auditorium) => {
+          return {
+            value: auditorium._id,
+            label: auditorium.name,
+          };
+        },
+      ) ?? [],
+    [auditoriumResult],
   );
 
   const screeningFormOnSubmit = handleSubmit(async (data) => {
@@ -153,16 +183,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                   <Select
                     name={field.name}
                     isSearchable={true}
-                    options={
-                      filmResult?.data.films?.map<
-                        TCustomSelectOptions<TFilm["_id"]>
-                      >((film) => {
-                        return {
-                          value: film._id,
-                          label: film.name,
-                        };
-                      }) ?? []
-                    }
+                    options={filmSelectOptions}
                     placeholder="Select film..."
                     onChange={handleSelectChange}
                   />
@@ -196,16 +217,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                   <Select
                     name={field.name}
                     isSearchable={true}
-                    options={
-                      auditoriumResult?.data?.map<
-                        TCustomSelectOptions<TAuditorium["_id"]>
-                      >((auditorium) => {
-                        return {
-                          value: auditorium._id,
-                          label: auditorium.name,
-                        };
-                      }) ?? []
-                    }
+                    options={auditoriumSelectOptions}
                     placeholder="Select auditorium..."
                     onChange={handleSelectChange}
                   />
