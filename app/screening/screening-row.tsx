@@ -13,6 +13,12 @@ import { screeningListTableColumns } from "./constants/screening-list-table-colu
 import { TScreening } from "@/types/screening.type";
 import DeleteButton from "@/components/DeleteButton/DeleteButton";
 import { format } from "date-fns";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteScreening } from "@/commons/api-calls.common";
+import { toast } from "react-toastify";
+import { TResponseError } from "@/types/response.type";
+import { screeningKeys } from "./query-key-factories";
+import { onError } from "@/commons/mutation-on-error.common";
 
 const ScreeningRow = ({
   screening,
@@ -22,9 +28,27 @@ const ScreeningRow = ({
   key: string;
 }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const queryClient = useQueryClient();
+
+  const deleteScreeningMutation = useMutation({
+    mutationFn: (screeningId: string) => {
+      return deleteScreening(screeningId);
+    },
+  });
 
   const handleConfirm = (screeningId: string) => {
-    setOpenDialog(false);
+    deleteScreeningMutation.mutate(screeningId, {
+      onSuccess(data) {
+        toast.success(data?.data.message);
+      },
+      onError,
+      onSettled() {
+        queryClient.invalidateQueries({
+          queryKey: screeningKeys.all,
+          refetchType: "all",
+        });
+      },
+    });
   };
 
   const posterUrl = useMemo(() => {

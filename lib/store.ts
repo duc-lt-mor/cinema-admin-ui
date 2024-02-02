@@ -1,7 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
+import screeningReducer from "./features/screening/screening-slice";
 
 export const makeStore = () => {
-  return configureStore({ reducer: {} });
+  return configureStore({
+    reducer: {
+      screening: screeningReducer,
+    },
+  });
 };
 
 export type AppStore = ReturnType<typeof makeStore>;

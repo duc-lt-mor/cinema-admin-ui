@@ -148,3 +148,22 @@ export const getScreenings = async (pagination: {
     }
   } catch (error) {}
 };
+
+export const deleteScreening = async (screeningId: string) => {
+  try {
+    const axiosRef = await useAxiosRef();
+    const result: AxiosResponse<TResponse<{ message: string }>> =
+      await axiosRef.delete(`${Api.SCREENING}/${screeningId}`);
+
+    if (result.data.type === EResponseType.SUCCESS) {
+      return result.data;
+    }
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      const response = error.response as AxiosResponse<TResponseError>;
+      if (response.data) {
+        throw JSON.stringify(response.data);
+      }
+    }
+  }
+};

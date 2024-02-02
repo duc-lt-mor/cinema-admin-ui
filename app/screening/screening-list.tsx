@@ -4,17 +4,27 @@ import AuthLayout from "../layouts/auth-layout";
 import AppTable from "@/components/Tables/AppTable";
 import { screeningListTableColumns } from "./constants/screening-list-table-columns.constant";
 import ScreeningRow from "./screening-row";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getScreenings } from "@/commons/api-calls.common";
 import "../pagination.css";
+import { useAppDispatch } from "@/lib/hooks";
+import {
+  setCurrentLimit,
+  setCurrentPage,
+} from "@/lib/features/screening/screening-slice";
+import { screeningKeys } from "./query-key-factories";
 
 const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
   const { data: result } = useQuery({
-    queryKey: [`screenings?page=${page}&limit=${limit}`],
+    queryKey: screeningKeys.paginate(page, limit),
     queryFn: () => {
       return getScreenings({ page, limit });
     },
   });
+
+  const dispatch = useAppDispatch();
+  dispatch(setCurrentLimit({ currentLimit: limit }));
+  dispatch(setCurrentPage({ currentPage: page }));
 
   const createRowElements = (screenings: TScreeningList) => {
     return screenings?.length > 0 ? (
