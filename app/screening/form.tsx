@@ -38,7 +38,6 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
           startsAt: format(screening.startsAt, "yyyy-MM-dd'T'HH:mm"),
         } as TScreeningFormInput;
 
-        console.log(newDefaultValues);
         setDefaultValues(newDefaultValues);
       }
     };
