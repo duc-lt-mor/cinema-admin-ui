@@ -10,7 +10,7 @@ import {
   getFilms,
   updateScreening,
 } from "@/commons/api-calls.common";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { TScreening, TScreeningFormInput } from "@/types/screening.type";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
@@ -18,12 +18,12 @@ import { auditoriumKeys } from "../auditorium/constants/query-key-factory.consta
 import { TAuditorium } from "@/types/auditorium.type";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { TResponseError } from "@/types/response.type";
 import { isFuture, isValid } from "date-fns";
 import {
   FILMS_LOAD_COUNT,
   FILMS_LOAD_PAGE,
 } from "./constants/films-load-in-form-configs.constant";
+import { onError } from "@/commons/mutation-on-error.common";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -136,23 +136,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
         toast.success(data?.data.message);
         router.push("/screening");
       },
-      onError(error) {
-        const serverResponse = JSON.parse(
-          error.message.replace("Error: ", ""),
-        ) as TResponseError;
-        let errorMessage = "An unknown error has occurred";
-
-        if (
-          typeof serverResponse.detail === "object" &&
-          "message" in serverResponse.detail
-        ) {
-          errorMessage = JSON.stringify(serverResponse.detail.message);
-        } else if (typeof serverResponse.detail === "string") {
-          errorMessage = serverResponse.detail;
-        }
-
-        toast.error(errorMessage);
-      },
+      onError,
     });
   });
 
@@ -241,11 +225,18 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
               control={control}
               rules={{ required: true, validate: validateScreeningStartTime }}
               render={({ field }) => {
+                const handleInputChange = (
+                  event: ChangeEvent<HTMLInputElement>,
+                ) => {
+                  const date = new Date(event.currentTarget.value);
+                  field.onChange(date.toISOString());
+                };
+
                 return (
                   <input
                     type="datetime-local"
                     className="custom-input-date custom-input-date-1 w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    onChange={field.onChange}
+                    onChange={handleInputChange}
                   />
                 );
               }}
