@@ -11,7 +11,7 @@ import { TScreening, TScreeningFormInput } from "@/types/screening.type";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
 import { auditoriumKeys } from "../auditorium/constants/query-key-factory.constant";
 import { TAuditorium } from "@/types/auditorium.type";
-import { isDate, isFuture, isValid } from "date-fns";
+import { isFuture, isValid } from "date-fns";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -75,6 +75,32 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     [],
   );
 
+  const filmSelectOptions = useMemo(
+    () =>
+      filmResult?.data.films?.map<TCustomSelectOptions<TFilm["_id"]>>(
+        (film) => {
+          return {
+            value: film._id,
+            label: film.name,
+          };
+        },
+      ) ?? [],
+    [filmResult],
+  );
+
+  const auditoriumSelectOptions = useMemo(
+    () =>
+      auditoriumResult?.data?.map<TCustomSelectOptions<TAuditorium["_id"]>>(
+        (auditorium) => {
+          return {
+            value: auditorium._id,
+            label: auditorium.name,
+          };
+        },
+      ) ?? [],
+    [auditoriumResult],
+  );
+
   const screeningFormOnSubmit = handleSubmit(async (data) => {
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
@@ -111,16 +137,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                   <Select
                     name={field.name}
                     isSearchable={true}
-                    options={
-                      filmResult?.data.films?.map<
-                        TCustomSelectOptions<TFilm["_id"]>
-                      >((film) => {
-                        return {
-                          value: film._id,
-                          label: film.name,
-                        };
-                      }) ?? []
-                    }
+                    options={filmSelectOptions}
                     placeholder="Select film..."
                     onChange={handleSelectChange}
                   />
@@ -154,16 +171,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                   <Select
                     name={field.name}
                     isSearchable={true}
-                    options={
-                      auditoriumResult?.data?.map<
-                        TCustomSelectOptions<TAuditorium["_id"]>
-                      >((auditorium) => {
-                        return {
-                          value: auditorium._id,
-                          label: auditorium.name,
-                        };
-                      }) ?? []
-                    }
+                    options={auditoriumSelectOptions}
                     placeholder="Select auditorium..."
                     onChange={handleSelectChange}
                   />
