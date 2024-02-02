@@ -12,6 +12,10 @@ import { filmKeys } from "../film/constants/query-key-factory.constant";
 import { auditoriumKeys } from "../auditorium/constants/query-key-factory.constant";
 import { TAuditorium } from "@/types/auditorium.type";
 import { isFuture, isValid } from "date-fns";
+import {
+  FILMS_LOAD_COUNT,
+  FILMS_LOAD_PAGE,
+} from "./constants/films-load-in-form-configs.constant";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -42,8 +46,8 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     defaultValues,
   });
 
-  const filmsPage = 1;
-  const filmsCount = 30;
+  const filmsPage = FILMS_LOAD_PAGE;
+  const filmsCount = FILMS_LOAD_COUNT;
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
     queries: [
       {
