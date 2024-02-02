@@ -37,6 +37,7 @@
     "typescript": "5.3.3"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^5.18.0",
     "prettier": "^3.2.4"
   }
 }
