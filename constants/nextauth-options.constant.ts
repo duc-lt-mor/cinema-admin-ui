@@ -31,7 +31,10 @@ export const authConfig: AuthOptions = {
             },
           );
 
-          if (user?.data.type === "success") {
+          if (
+            user?.data.type === "success" &&
+            user?.data.data.role === "admin"
+          ) {
             return user.data.data;
           }
 
