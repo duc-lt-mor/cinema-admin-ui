@@ -12,7 +12,7 @@ import {
   setCurrentLimit,
   setCurrentPage,
 } from "@/lib/features/screening/screening-slice";
-import { screeningKeys } from "./query-key-factories";
+import { screeningKeys } from "./constants/query-key-factory.constant";
 
 const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
   const { data: result } = useQuery({
