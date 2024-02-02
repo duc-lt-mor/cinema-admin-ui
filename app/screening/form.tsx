@@ -3,19 +3,27 @@ import AuthLayout from "@/app/layouts/auth-layout";
 import { TFilm } from "@/types/film.type";
 import { Controller, useForm } from "react-hook-form";
 import Select, { SingleValue } from "react-select";
-import { useQueries } from "@tanstack/react-query";
-import { getAuditoriums, getFilms } from "@/commons/api-calls.common";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMutation, useQueries } from "@tanstack/react-query";
+import {
+  createScreening,
+  getAuditoriums,
+  getFilms,
+  updateScreening,
+} from "@/commons/api-calls.common";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { TScreening, TScreeningFormInput } from "@/types/screening.type";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
 import { auditoriumKeys } from "../auditorium/constants/query-key-factory.constant";
 import { TAuditorium } from "@/types/auditorium.type";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import { isFuture, isValid } from "date-fns";
 import {
   FILMS_LOAD_COUNT,
   FILMS_LOAD_PAGE,
 } from "./constants/films-load-in-form-configs.constant";
+import { onError } from "@/commons/mutation-on-error.common";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -46,6 +54,8 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     defaultValues,
   });
 
+  const router = useRouter();
+
   const filmsPage = FILMS_LOAD_PAGE;
   const filmsCount = FILMS_LOAD_COUNT;
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
@@ -63,6 +73,16 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
         },
       },
     ],
+  });
+
+  const screeningMutation = useMutation({
+    mutationFn: (body: FormData) => {
+      if (screening) {
+        return updateScreening(screening._id, body);
+      }
+
+      return createScreening(body);
+    },
   });
 
   useEffect(() => {
@@ -108,10 +128,16 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
   const screeningFormOnSubmit = handleSubmit(async (data) => {
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
-      if (value) {
-        formData.set(key, value as any);
-      }
+      formData.set(key, value);
     }
+
+    screeningMutation.mutate(formData, {
+      onSuccess(data) {
+        toast.success(data?.data.message);
+        router.push("/screening");
+      },
+      onError,
+    });
   });
 
   return (
@@ -199,11 +225,18 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
               control={control}
               rules={{ required: true, validate: validateScreeningStartTime }}
               render={({ field }) => {
+                const handleInputChange = (
+                  event: ChangeEvent<HTMLInputElement>,
+                ) => {
+                  const date = new Date(event.currentTarget.value);
+                  field.onChange(date.toISOString());
+                };
+
                 return (
                   <input
                     type="datetime-local"
                     className="custom-input-date custom-input-date-1 w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    onChange={field.onChange}
+                    onChange={handleInputChange}
                   />
                 );
               }}
