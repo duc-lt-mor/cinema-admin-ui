@@ -5,12 +5,13 @@ import { Controller, useForm } from "react-hook-form";
 import Select, { SingleValue } from "react-select";
 import { useQueries } from "@tanstack/react-query";
 import { getAuditoriums, getFilms } from "@/commons/api-calls.common";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { TScreening, TScreeningFormInput } from "@/types/screening.type";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
 import { auditoriumKeys } from "../auditorium/constants/query-key-factory.constant";
 import { TAuditorium } from "@/types/auditorium.type";
+import { isDate, isFuture, isValid } from "date-fns";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -65,6 +66,14 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
       reset(defaultValues);
     }
   }, [defaultValues, reset]);
+
+  const validateScreeningStartTime = useCallback(
+    (startsAt: TScreeningFormInput["startsAt"]) => {
+      const date = new Date(startsAt);
+      return isValid(date) && isFuture(date);
+    },
+    [],
+  );
 
   const screeningFormOnSubmit = handleSubmit(async (data) => {
     const formData = new FormData();
@@ -176,7 +185,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
             <Controller
               name="startsAt"
               control={control}
-              rules={{ required: true }}
+              rules={{ required: true, validate: validateScreeningStartTime }}
               render={({ field }) => {
                 return (
                   <input
@@ -187,8 +196,11 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                 );
               }}
             />
-            {errors?.filmId?.type === "required" && (
-              <p className="text-danger">Auditorium name is required</p>
+            {errors?.startsAt?.type === "required" && (
+              <p className="text-danger">Start time is required</p>
+            )}
+            {errors?.startsAt?.type === "validate" && (
+              <p className="text-danger">Start time is invalid</p>
             )}
           </div>
           <div className="buttons flex flex-row-reverse gap-5">
