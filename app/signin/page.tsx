@@ -24,13 +24,7 @@ const SignIn: React.FC = () => {
     if (user?.ok) {
       router.push("/film");
     } else {
-      toast.error("Wrong email or password", {
-        position: "top-center",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        theme: "light",
-      });
+      toast.error("Wrong email or password");
     }
   };
 

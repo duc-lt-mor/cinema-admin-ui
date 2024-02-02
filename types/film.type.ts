@@ -14,7 +14,7 @@ export type TFilm = TBaseSchema & {
   isActive: boolean;
 };
 
-export type TFilmList = Pick<
+export type TPartialFilm = Pick<
   TFilm,
   | "_id"
   | "name"
@@ -23,4 +23,18 @@ export type TFilmList = Pick<
   | "releasedAt"
   | "durationInMinutes"
   | "isActive"
->[];
+>;
+
+export type TFilmList = TPartialFilm[];
+
+export type TFilmFormInput = {
+  name: string;
+  description: string;
+  poster?: File;
+  trailer?: string;
+  genres: string;
+  director: string;
+  cast?: string;
+  releasedAt: string;
+  durationInMinutes: string;
+};
