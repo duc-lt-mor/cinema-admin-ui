@@ -17,6 +17,7 @@ import { toggleFilmActiveStatus } from "@/commons/api-calls.common";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { TResponseError } from "@/types/response.type";
+import { onError } from "@/commons/mutation-on-error.common";
 
 const FilmRow = ({ film, key }: { film: TPartialFilm; key: string }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -36,25 +37,7 @@ const FilmRow = ({ film, key }: { film: TPartialFilm; key: string }) => {
         setToggleChecked(!toggleChecked);
         router.refresh();
       },
-      onError(error) {
-        const serverResponse = JSON.parse(
-          error.message.replace("Error: ", ""),
-        ) as TResponseError;
-        let errorMessage = "An unknown error has occurred";
-
-        // assigning `serverResponse.detail.message` logic to a variable
-        // leads to the error: property `message` does not exist on type `string`
-        if (
-          typeof serverResponse.detail === "object" &&
-          "message" in serverResponse.detail
-        ) {
-          errorMessage = JSON.stringify(serverResponse.detail.message);
-        } else if (typeof serverResponse.detail === "string") {
-          errorMessage = serverResponse.detail;
-        }
-
-        toast.error(errorMessage);
-      },
+      onError,
     });
   };
 

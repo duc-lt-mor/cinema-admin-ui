@@ -16,8 +16,8 @@ import { format } from "date-fns";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteScreening } from "@/commons/api-calls.common";
 import { toast } from "react-toastify";
-import { TResponseError } from "@/types/response.type";
 import { screeningKeys } from "./constants/query-key-factory.constant";
+import { onError } from "@/commons/mutation-on-error.common";
 
 const ScreeningRow = ({
   screening,
@@ -39,29 +39,13 @@ const ScreeningRow = ({
     deleteScreeningMutation.mutate(screeningId, {
       onSuccess(data) {
         toast.success(data?.data.message);
+      },
+      onError,
+      onSettled() {
         queryClient.invalidateQueries({
           queryKey: screeningKeys.all,
-          refetchType: "active",
+          refetchType: "all",
         });
-      },
-      onError(error) {
-        const serverResponse = JSON.parse(
-          error.message.replace("Error: ", ""),
-        ) as TResponseError;
-        let errorMessage = "An unknown error has occurred";
-
-        // assigning `serverResponse.detail.message` logic to a variable
-        // leads to the error: property `message` does not exist on type `string`
-        if (
-          typeof serverResponse.detail === "object" &&
-          "message" in serverResponse.detail
-        ) {
-          errorMessage = JSON.stringify(serverResponse.detail.message);
-        } else if (typeof serverResponse.detail === "string") {
-          errorMessage = serverResponse.detail;
-        }
-
-        toast.error(errorMessage);
       },
     });
   };

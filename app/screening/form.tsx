@@ -10,7 +10,7 @@ import {
   getFilms,
   updateScreening,
 } from "@/commons/api-calls.common";
-import { ChangeEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { TScreening, TScreeningFormInput } from "@/types/screening.type";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
@@ -18,9 +18,12 @@ import { auditoriumKeys } from "../auditorium/constants/query-key-factory.consta
 import { TAuditorium } from "@/types/auditorium.type";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { TResponseError } from "@/types/response.type";
-import { format } from "date-fns";
-import { toVnTimezone } from "@/commons/to-vn-timezone.common";
+import { format, isFuture, isValid } from "date-fns";
+import {
+  FILMS_LOAD_COUNT,
+  FILMS_LOAD_PAGE,
+} from "./constants/films-load-in-form-configs.constant";
+import { onError } from "@/commons/mutation-on-error.common";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -35,6 +38,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
           startsAt: format(screening.startsAt, "yyyy-MM-dd'T'HH:mm"),
         } as TScreeningFormInput;
 
+        console.log(newDefaultValues);
         setDefaultValues(newDefaultValues);
       }
     };
@@ -53,8 +57,8 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
 
   const router = useRouter();
 
-  const filmsPage = 1;
-  const filmsCount = 30;
+  const filmsPage = FILMS_LOAD_PAGE;
+  const filmsCount = FILMS_LOAD_COUNT;
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
     queries: [
       {
@@ -88,6 +92,40 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     }
   }, [defaultValues, reset]);
 
+  const validateScreeningStartTime = useCallback(
+    (startsAt: TScreeningFormInput["startsAt"]) => {
+      const date = new Date(startsAt);
+      return isValid(date) && isFuture(date);
+    },
+    [],
+  );
+
+  const filmSelectOptions = useMemo(
+    () =>
+      filmResult?.data.films?.map<TCustomSelectOptions<TFilm["_id"]>>(
+        (film) => {
+          return {
+            value: film._id,
+            label: film.name,
+          };
+        },
+      ) ?? [],
+    [filmResult],
+  );
+
+  const auditoriumSelectOptions = useMemo(
+    () =>
+      auditoriumResult?.data?.map<TCustomSelectOptions<TAuditorium["_id"]>>(
+        (auditorium) => {
+          return {
+            value: auditorium._id,
+            label: auditorium.name,
+          };
+        },
+      ) ?? [],
+    [auditoriumResult],
+  );
+
   const screeningFormOnSubmit = handleSubmit(async (data) => {
     const formData = new FormData();
     for (const [key, value] of Object.entries(data)) {
@@ -99,23 +137,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
         toast.success(data?.data.message);
         router.push("/screening");
       },
-      onError(error) {
-        const serverResponse = JSON.parse(
-          error.message.replace("Error: ", ""),
-        ) as TResponseError;
-        let errorMessage = "An unknown error has occurred";
-
-        if (
-          typeof serverResponse.detail === "object" &&
-          "message" in serverResponse.detail
-        ) {
-          errorMessage = JSON.stringify(serverResponse.detail.message);
-        } else if (typeof serverResponse.detail === "string") {
-          errorMessage = serverResponse.detail;
-        }
-
-        toast.error(errorMessage);
-      },
+      onError,
     });
   });
 
@@ -146,16 +168,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                   <Select
                     name={field.name}
                     isSearchable={true}
-                    options={
-                      filmResult?.data.films?.map<
-                        TCustomSelectOptions<TFilm["_id"]>
-                      >((film) => {
-                        return {
-                          value: film._id,
-                          label: film.name,
-                        };
-                      }) ?? []
-                    }
+                    options={filmSelectOptions}
                     placeholder="Select film..."
                     onChange={handleSelectChange}
                     {...(screening && {
@@ -195,16 +208,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                   <Select
                     name={field.name}
                     isSearchable={true}
-                    options={
-                      auditoriumResult?.data?.map<
-                        TCustomSelectOptions<TAuditorium["_id"]>
-                      >((auditorium) => {
-                        return {
-                          value: auditorium._id,
-                          label: auditorium.name,
-                        };
-                      }) ?? []
-                    }
+                    options={auditoriumSelectOptions}
                     placeholder="Select auditorium..."
                     onChange={handleSelectChange}
                     {...(screening && {
@@ -232,24 +236,30 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
             <Controller
               name="startsAt"
               control={control}
-              rules={{ required: true }}
+              rules={{ required: true, validate: validateScreeningStartTime }}
               render={({ field }) => {
-                const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-                  field.onChange(toVnTimezone(event.currentTarget.value));
+                const handleInputChange = (
+                  event: ChangeEvent<HTMLInputElement>,
+                ) => {
+                  const date = new Date(event.currentTarget.value);
+                  field.onChange(date.toISOString());
                 };
 
                 return (
                   <input
                     type="datetime-local"
                     className="custom-input-date custom-input-date-1 w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-                    onChange={handleChange}
+                    onChange={handleInputChange}
                     defaultValue={field.value}
                   />
                 );
               }}
             />
-            {errors?.filmId?.type === "required" && (
-              <p className="text-danger">Auditorium name is required</p>
+            {errors?.startsAt?.type === "required" && (
+              <p className="text-danger">Start time is required</p>
+            )}
+            {errors?.startsAt?.type === "validate" && (
+              <p className="text-danger">Start time is invalid</p>
             )}
           </div>
           <div className="buttons flex flex-row-reverse gap-5">
