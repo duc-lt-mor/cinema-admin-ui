@@ -8,6 +8,7 @@ import "react-toastify/ReactToastify.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import StoreProvider from "./store-provider";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 export default function RootLayout({
   children,
@@ -29,6 +30,7 @@ export default function RootLayout({
                 theme="light"
               />
               {children}
+              <ReactQueryDevtools initialIsOpen={true} />
             </SessionProvider>
           </StoreProvider>
         </QueryClientProvider>

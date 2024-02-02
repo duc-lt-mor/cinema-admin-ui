@@ -40,12 +40,14 @@ const ScreeningRow = ({
     deleteScreeningMutation.mutate(screeningId, {
       onSuccess(data) {
         toast.success(data?.data.message);
-        queryClient.invalidateQueries({
-          queryKey: screeningKeys.all,
-          refetchType: "active",
-        });
       },
       onError,
+      onSettled() {
+        queryClient.invalidateQueries({
+          queryKey: screeningKeys.all,
+          refetchType: "all",
+        });
+      },
     });
   };
 
