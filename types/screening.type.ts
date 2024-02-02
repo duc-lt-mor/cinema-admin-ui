@@ -1,3 +1,4 @@
+import { TAuditoriumRow } from "./auditorium.type";
 import { TBaseSchema } from "./base-schema.type";
 import { TFilm } from "./film.type";
 
@@ -16,4 +17,12 @@ export type TScreeningFormInput = {
   filmId: string;
   auditoriumId: string;
   startsAt: string;
+};
+
+export type TScreeningSlot = TBaseSchema & {
+  screening: string;
+  seat: TAuditoriumRow & {
+    price: number;
+  };
+  isAvailable: boolean;
 };

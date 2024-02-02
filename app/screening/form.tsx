@@ -18,7 +18,7 @@ import { auditoriumKeys } from "../auditorium/constants/query-key-factory.consta
 import { TAuditorium } from "@/types/auditorium.type";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { isFuture, isValid } from "date-fns";
+import { format, isFuture, isValid } from "date-fns";
 import {
   FILMS_LOAD_COUNT,
   FILMS_LOAD_PAGE,
@@ -33,9 +33,9 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
     const transformDefaultValues = async () => {
       if (screening) {
         const newDefaultValues = {
-          ...screening,
           filmId: screening.film._id,
           auditoriumId: screening.auditorium._id,
+          startsAt: format(screening.startsAt, "yyyy-MM-dd'T'HH:mm"),
         } as TScreeningFormInput;
 
         setDefaultValues(newDefaultValues);
@@ -170,6 +170,12 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                     options={filmSelectOptions}
                     placeholder="Select film..."
                     onChange={handleSelectChange}
+                    {...(screening && {
+                      defaultValue: {
+                        value: screening.film._id,
+                        label: screening.film.name,
+                      },
+                    })}
                   />
                 );
               }}
@@ -204,6 +210,12 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                     options={auditoriumSelectOptions}
                     placeholder="Select auditorium..."
                     onChange={handleSelectChange}
+                    {...(screening && {
+                      defaultValue: {
+                        value: screening.auditorium._id,
+                        label: screening.auditorium.name,
+                      },
+                    })}
                   />
                 );
               }}
@@ -237,6 +249,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
                     type="datetime-local"
                     className="custom-input-date custom-input-date-1 w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                     onChange={handleInputChange}
+                    defaultValue={field.value}
                   />
                 );
               }}
