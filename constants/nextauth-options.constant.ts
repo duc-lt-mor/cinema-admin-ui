@@ -6,7 +6,7 @@ import { TResponse } from "../types/response.type";
 import { TUser } from "../types/user.type";
 import axiosRef from "./axios-ref.constant";
 import { Api } from "../constants/api.constant";
-import { TSessionWithJwt } from "../types/session-with-jwt.type";
+import { TSessionWithUserDetails } from "../types/session-with-user-details.type";
 import { TCustomNextAuthJwt } from "../types/custom-nextauth-jwt.type";
 
 export const authConfig: AuthOptions = {
@@ -31,7 +31,10 @@ export const authConfig: AuthOptions = {
             },
           );
 
-          if (user?.data.type === "success") {
+          if (
+            user?.data.type === "success" &&
+            user?.data.data.role === "admin"
+          ) {
             return user.data.data;
           }
 
@@ -48,22 +51,18 @@ export const authConfig: AuthOptions = {
   },
   callbacks: {
     jwt(params) {
-      const { token, user } = params;
+      const token = params.token as TCustomNextAuthJwt;
+      const user = params.user as TUser;
       if (user) {
-        const { accessToken, refreshToken } = user as TUser;
-        token.accessToken = accessToken;
-        token.refreshToken = refreshToken;
+        token.user = user;
       }
 
       return token as TCustomNextAuthJwt;
     },
     session(params) {
-      const session = params.session as TSessionWithJwt;
+      const session = params.session as TSessionWithUserDetails;
       const token = params.token as TCustomNextAuthJwt;
-      session.tokens = {
-        accessToken: token.accessToken,
-        refreshToken: token.refreshToken,
-      };
+      session.userDetails = token.user;
 
       return session;
     },
@@ -71,7 +70,9 @@ export const authConfig: AuthOptions = {
   events: {
     async signOut(message) {
       const token = message.token as TCustomNextAuthJwt;
-      const { refreshToken } = token;
+      const {
+        user: { refreshToken },
+      } = token;
       try {
         axiosRef.patch(Api.SIGN_OUT, null, {
           headers: {

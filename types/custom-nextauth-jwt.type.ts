@@ -1,4 +1,4 @@
 import { JWT } from "next-auth/jwt";
-import { TTokens } from "./tokens.type";
+import { TUser } from "./user.type";
 
-export type TCustomNextAuthJwt = JWT & TTokens;
+export type TCustomNextAuthJwt = JWT & { user: TUser };

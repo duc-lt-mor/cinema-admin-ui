@@ -1,7 +1,12 @@
+"use client";
+import { useAppDispatch } from "@/lib/hooks";
 import { signOut } from "next-auth/react";
+import { signOut as signOutAction } from "@/lib/features/user/user-slice";
 
 const SignOutButton = () => {
+  const dispatch = useAppDispatch();
   const handleSignout = async () => {
+    dispatch(signOutAction());
     signOut({ callbackUrl: "/signin" });
   };
 
