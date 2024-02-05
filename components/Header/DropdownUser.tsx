@@ -10,7 +10,7 @@ const DropdownUser = () => {
 
   const trigger = useRef<any>(null);
   const dropdown = useRef<any>(null);
-  const currentUser = useAppSelector((state) => state.user);
+  const { email, role } = useAppSelector((state) => state.user);
 
   // close on click outside
   useEffect(() => {
@@ -48,9 +48,9 @@ const DropdownUser = () => {
       >
         <span className="hidden text-right lg:block">
           <span className="block text-sm font-medium text-black dark:text-white">
-            {currentUser.email}
+            {email}
           </span>
-          <span className="block text-xs">{currentUser.role}</span>
+          <span className="block text-xs">{role}</span>
         </span>
 
         <span className="h-12 w-12 rounded-full">
