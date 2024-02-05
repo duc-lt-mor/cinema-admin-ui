@@ -24,6 +24,7 @@ import {
   FILMS_LOAD_PAGE,
 } from "./constants/films-load-in-form-configs.constant";
 import { onError } from "@/commons/mutation-on-error.common";
+import FormButtons from "@/components/FormButtons/FormButtons";
 
 const ScreeningForm = (props: { screening?: TScreening }) => {
   const [defaultValues, setDefaultValues] = useState<TScreeningFormInput>();
@@ -261,14 +262,8 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
               <p className="text-danger">Start time is invalid</p>
             )}
           </div>
-          <div className="buttons flex flex-row-reverse gap-5">
-            <button className="flex w-70 justify-center rounded bg-whiten p-3 font-medium text-danger">
-              Cancel
-            </button>
-            <button className="flex w-70 justify-center rounded bg-primary p-3 font-medium text-gray">
-              Submit
-            </button>
-          </div>
+
+          <FormButtons />
         </div>
       </form>
     </AuthLayout>

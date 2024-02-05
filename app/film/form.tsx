@@ -25,6 +25,7 @@ import {
   IMAGE_WIDTH_IN_ROW,
 } from "@/constants/image-dimensions-in-rows";
 import Image, { StaticImageData } from "next/image";
+import FormButtons from "@/components/FormButtons/FormButtons";
 
 const FilmForm = (props: { film?: TFilm }) => {
   const [defaultValues, setDefaultValues] = useState<TFilmFormInput>();
@@ -432,14 +433,7 @@ const FilmForm = (props: { film?: TFilm }) => {
             )}
           </div>
 
-          <div className="buttons flex flex-row-reverse gap-5">
-            <button className="flex w-70 justify-center rounded bg-whiten p-3 font-medium text-danger">
-              Cancel
-            </button>
-            <button className="flex w-70 justify-center rounded bg-primary p-3 font-medium text-gray">
-              Submit
-            </button>
-          </div>
+          <FormButtons />
         </div>
       </form>
     </AuthLayout>
