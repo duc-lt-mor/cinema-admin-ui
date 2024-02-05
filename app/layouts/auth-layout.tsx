@@ -5,7 +5,7 @@ import { signIn as signInAction } from "@/lib/features/user/user-slice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { TSessionWithUserDetails } from "@/types/session-with-user-details.type";
 import { useSession } from "next-auth/react";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -13,16 +13,16 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const currentUser = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
 
-  const isAuthenticated = useMemo(
+  const isAuthenticated = useCallback(
     () =>
       currentUser.email === "" &&
       currentUser.role === "" &&
       session.status === "authenticated",
-    [],
+    [currentUser, session],
   );
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated()) {
       const { userDetails } = session.data as TSessionWithUserDetails;
       dispatch(
         signInAction({
