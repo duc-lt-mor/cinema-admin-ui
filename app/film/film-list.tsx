@@ -7,6 +7,7 @@ import { filmListTableColumns } from "./constants/film-list-table-columns.consta
 import { getFilms } from "@/commons/api-calls.common";
 import { useQuery } from "@tanstack/react-query";
 import FilmRow from "./film-row";
+import FilmFilter from "./film-filter";
 
 const FilmList = ({ page, limit }: { page: number; limit: number }) => {
   const { data: result } = useQuery({
@@ -45,6 +46,7 @@ const FilmList = ({ page, limit }: { page: number; limit: number }) => {
             itemsPerPage: limit,
             renderPageLink: (_page) => `film?page=${_page}&limit=${limit}`,
           }}
+          filter={<FilmFilter />}
         />
       </div>
     </AuthLayout>

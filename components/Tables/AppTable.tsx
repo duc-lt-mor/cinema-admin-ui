@@ -3,8 +3,15 @@ import Link from "next/link";
 import Pagination from "../Pagination/Pagination";
 
 const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
-  const { title, columns, createRowElements, rows, createHref, pagination } =
-    props;
+  const {
+    title,
+    columns,
+    createRowElements,
+    rows,
+    createHref,
+    pagination,
+    filter,
+  } = props;
 
   return (
     <>
@@ -35,6 +42,8 @@ const AppTable = <TRows extends any[]>(props: TAppTable<TRows>) => {
             Create
           </Link>
         </div>
+
+        {filter ?? <></>}
 
         <div className="grid grid-cols-6 border-t border-stroke py-4.5 px-4 dark:border-strokedark sm:grid-cols-8 md:px-6 2xl:px-7.5">
           {Object.keys(columns).map((columnName, i) => {

@@ -24,4 +24,5 @@ export type TAppTable<TRows extends any[]> = {
   createRowElements: TCreateRowElements<TRows>;
   createHref: string;
   pagination: PaginationProps;
+  filter?: ReactNode;
 };

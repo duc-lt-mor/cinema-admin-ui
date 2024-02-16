@@ -4,7 +4,7 @@ import AuthLayout from "../layouts/auth-layout";
 import AppTable from "@/components/Tables/AppTable";
 import { screeningListTableColumns } from "./constants/screening-list-table-columns.constant";
 import ScreeningRow from "./screening-row";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getScreenings } from "@/commons/api-calls.common";
 import "../pagination.css";
 import { useAppDispatch } from "@/lib/hooks";
@@ -13,6 +13,7 @@ import {
   setCurrentPage,
 } from "@/lib/features/screening/screening-slice";
 import { screeningKeys } from "./constants/query-key-factory.constant";
+import ScreeningFilter from "./screening-filter";
 
 const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
   const { data: result } = useQuery({
@@ -55,6 +56,7 @@ const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
             itemsPerPage: limit,
             renderPageLink: (_page) => `screening?page=${_page}&limit=${limit}`,
           }}
+          filter={<ScreeningFilter />}
         />
       </div>
     </AuthLayout>
