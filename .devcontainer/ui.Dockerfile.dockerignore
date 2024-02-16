@@ -1,0 +1,8 @@
+.next
+node_modules
+.git*
+.prettierrc
+LICENSE
+README.md
+.vscode
+.eslintrc.json
