@@ -12,12 +12,16 @@ import {
 import TagsInput, { TTag } from "@/components/TagInput/TagInput";
 import { useAppDispatch } from "@/lib/hooks";
 import { setFilmFilter } from "@/lib/features/film/film-slice";
+import FilterFormButtons from "@/components/FilterFormButtons/FilterFormButtons";
+import { useState } from "react";
+import { Mutable } from "@/types/utils.type";
 
 const FilmFilter = () => {
   const {
     handleSubmit,
     control,
     register,
+    reset,
     formState: { dirtyFields },
   } = useForm<TFilmFilter>();
   const dispatch = useAppDispatch();
@@ -25,13 +29,30 @@ const FilmFilter = () => {
   const filmFilterOnSubmit = handleSubmit((data) => {
     for (const prop in data) {
       const _prop = prop as keyof TFilmFilter;
-      if (!!dirtyFields[_prop]?.valueOf() === false) {
+      if (!dirtyFields[_prop]?.valueOf()) {
         delete data[_prop];
       }
     }
 
     dispatch(setFilmFilter(data));
   });
+
+  const [genresSelectValues, setGenresSelectValues] = useState<
+    TCustomSelectOptions<FilmGenre>[]
+  >([]);
+
+  const [activeSelectValue, setActiveSelectValue] =
+    useState<TCustomSelectOptions<boolean> | null>(null);
+
+  const [tags, setTags] = useState<TTag[]>([]);
+
+  const handleClearFilter = () => {
+    reset();
+    setGenresSelectValues([]);
+    setActiveSelectValue(null);
+    setTags([]);
+    dispatch(setFilmFilter({}));
+  };
 
   return (
     <form
@@ -77,6 +98,8 @@ const FilmFilter = () => {
                       onChange={handleCastChange}
                       name={field.name}
                       placeholder=""
+                      tags={tags}
+                      setTags={setTags}
                     />
                   );
                 }}
@@ -86,7 +109,7 @@ const FilmFilter = () => {
         </div>
         <div className="flex gap-20">
           <div className="basis-1/2" role="row">
-            <label htmlFor="genres"> Genres</label>
+            <label htmlFor="genres">Genres</label>
             <div className="mt-2.5 w-full">
               <Controller
                 {...register("genres")}
@@ -95,6 +118,8 @@ const FilmFilter = () => {
                   const handleSelectChange = (
                     values: MultiValue<TCustomSelectOptions<FilmGenre>>,
                   ) => {
+                    const _values = values as Mutable<typeof values>;
+                    setGenresSelectValues(_values);
                     const genres = values.map((val) => val.value);
                     field.onChange(genres.join(","));
                   };
@@ -107,6 +132,7 @@ const FilmFilter = () => {
                       closeMenuOnSelect={false}
                       onChange={handleSelectChange}
                       classNames={customSelectClassNames}
+                      value={genresSelectValues}
                     />
                   );
                 }}
@@ -114,7 +140,7 @@ const FilmFilter = () => {
             </div>
           </div>
           <div className="basis-1/2" role="row">
-            <label htmlFor="status"> Status</label>
+            <label htmlFor="status">Status</label>
             <div className="mt-2.5 w-full">
               <Controller
                 {...register("isActive")}
@@ -130,11 +156,19 @@ const FilmFilter = () => {
                       value: false,
                     },
                   ];
+
                   return (
                     <Select
                       name={field.name}
                       options={activeOptions}
-                      classNames={customSelectClassNames}
+                      classNames={{
+                        ...customSelectClassNames,
+                        singleValue: () => "dark:text-white",
+                      }}
+                      onChange={(value) => {
+                        setActiveSelectValue(value);
+                      }}
+                      value={activeSelectValue}
                       isClearable={true}
                     />
                   );
@@ -144,14 +178,7 @@ const FilmFilter = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row-reverse mt-5">
-        <button
-          type="submit"
-          className="rounded bg-primary py-3 px-10 font-medium text-gray"
-        >
-          Filter
-        </button>
-      </div>
+      <FilterFormButtons handleClearFilter={handleClearFilter} />
     </form>
   );
 };

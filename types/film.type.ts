@@ -40,7 +40,8 @@ export type TFilmFormInput = {
 };
 
 export type TFilmFilter = Partial<
-  Pick<TFilm, "cast" | "director" | "name" | "genres" | "isActive">
+  Pick<TFilmFormInput, "cast" | "director" | "name" | "genres"> &
+    Pick<TFilm, "isActive">
 >;
 
 export type TFilmFilterWithPagination = {

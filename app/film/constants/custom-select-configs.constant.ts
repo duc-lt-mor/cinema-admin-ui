@@ -23,7 +23,7 @@ export const customSelectClassNames = {
   multiValue: () =>
     "m-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray py-1.5 px-2.5 text-base font-medium dark:border-strokedark dark:bg-white/30",
   multiValueLabel: () => "text-body dark:text-white",
-  input: () => "text-body dark:text-bodydark",
+  input: () => "text-body dark:text-white",
   placeholder: () => "ml-1 text-body dark:text-bodydark",
   menu: () =>
     "dark:border-form-strokedark dark:bg-form-input dark:text-white focus:bg-bodydark",

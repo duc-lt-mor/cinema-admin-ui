@@ -1,5 +1,5 @@
 "use client";
-import { useState, KeyboardEvent } from "react";
+import { KeyboardEvent } from "react";
 import CloseIcon from "../common/svg/CloseIcon";
 
 export type TTag = {
@@ -11,9 +11,10 @@ const TagsInput = (props: {
   onChange: (tags: TTag[]) => void;
   name: string;
   placeholder: string;
+  tags: TTag[];
+  setTags: (tags: TTag[]) => void;
 }) => {
-  const [tags, setTags] = useState<TTag[]>([]);
-
+  const { onChange, name, placeholder, tags, setTags } = props;
   const removeTags = (indexToRemove: number) => {
     setTags([...tags.filter((_, index) => index !== indexToRemove)]);
   };
@@ -29,7 +30,7 @@ const TagsInput = (props: {
       };
 
       setTags([...tags, newTag]);
-      props.onChange([...tags, newTag]);
+      onChange([...tags, newTag]);
       event.currentTarget.value = "";
     }
   };
@@ -68,8 +69,8 @@ const TagsInput = (props: {
         className="w-full flex-1 items-center justify-center bg-transparent py-3 px-5 font-medium outline-none transition disabled:cursor-default disabled:bg-whiter dark:bg-form-input"
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
-        placeholder={props.placeholder}
-        name={props.name}
+        placeholder={placeholder}
+        name={name}
       />
     </div>
   );
