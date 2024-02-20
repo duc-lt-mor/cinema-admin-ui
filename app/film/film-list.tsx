@@ -8,12 +8,22 @@ import { getFilms } from "@/commons/api-calls.common";
 import { useQuery } from "@tanstack/react-query";
 import FilmRow from "./film-row";
 import FilmFilter from "./film-filter";
+import { filmKeys } from "./constants/query-key-factory.constant";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { setFilmPagination } from "@/lib/features/film/film-slice";
+import { useEffect } from "react";
 
 const FilmList = ({ page, limit }: { page: number; limit: number }) => {
+  const { filter: filmFilter } = useAppSelector((state) => state.film);
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(setFilmPagination({ page, limit }));
+  }, [page, limit]);
+
   const { data: result } = useQuery({
-    queryKey: [`films?page=${page}&limit=${limit}`],
+    queryKey: filmKeys.filter({ page, limit, ...filmFilter }),
     queryFn: () => {
-      return getFilms({ page, limit });
+      return getFilms({ page, limit, ...filmFilter });
     },
   });
 

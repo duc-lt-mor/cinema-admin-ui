@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import screeningReducer from "./features/screening/screening-slice";
 import userReducer from "./features/user/user-slice";
+import filmReducer from "./features/film/film-slice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       screening: screeningReducer,
       user: userReducer,
+      film: filmReducer,
     },
   });
 };

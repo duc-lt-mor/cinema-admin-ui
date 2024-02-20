@@ -62,7 +62,7 @@ const ScreeningForm = (props: { screening?: TScreening }) => {
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
     queries: [
       {
-        queryKey: filmKeys.paginate(filmsPage, filmsCount),
+        queryKey: filmKeys.filter({ page: filmsPage, limit: filmsCount }),
         queryFn: () => {
           return getFilms({ page: filmsPage, limit: filmsCount });
         },

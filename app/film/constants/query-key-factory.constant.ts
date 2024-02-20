@@ -1,5 +1,7 @@
+import { TFilmFilterWithPagination } from "@/types/film.type";
+
 export const filmKeys = {
   all: ["films"] as const,
-  paginate: (page: number, limit: number) =>
-    [...filmKeys.all, page, limit] as const,
+  filter: (filter: TFilmFilterWithPagination) =>
+    [...filmKeys.all, { filter }] as const,
 };

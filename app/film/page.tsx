@@ -1,4 +1,3 @@
-import { getFilms } from "@/commons/api-calls.common";
 import {
   HydrationBoundary,
   QueryClient,
@@ -11,7 +10,7 @@ import {
 import FilmList from "./film-list";
 import { paginationToNumber } from "@/commons/pagination-to-number.common";
 
-const FilmLoader = async ({
+const FilmLoader = ({
   searchParams: { page = DEFAULT_FILM_PAGE, limit = DEFAULT_FILM_LIMIT },
 }: {
   searchParams: {
@@ -21,13 +20,6 @@ const FilmLoader = async ({
 }) => {
   const queryClient = new QueryClient();
   const { pageToNumber, limitToNumber } = paginationToNumber({ page, limit });
-
-  await queryClient.prefetchQuery({
-    queryKey: [`films?page=${pageToNumber}&limit=${limitToNumber}`],
-    queryFn: () => {
-      return getFilms({ page: pageToNumber, limit: limitToNumber });
-    },
-  });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

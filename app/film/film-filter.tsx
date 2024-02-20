@@ -1,7 +1,7 @@
 "use client";
 
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
-import { TFilm } from "@/types/film.type";
+import { TFilmFilter } from "@/types/film.type";
 import { Controller, useForm } from "react-hook-form";
 import Select, { MultiValue } from "react-select";
 import { FilmGenre } from "./constants/film-genres.constant";
@@ -10,14 +10,28 @@ import {
   customSelectOptions,
 } from "./constants/custom-select-configs.constant";
 import TagsInput, { TTag } from "@/components/TagInput/TagInput";
-
-type TFilmFilter = Partial<
-  Pick<TFilm, "cast" | "director" | "name" | "genres" | "isActive">
->;
+import { useAppDispatch } from "@/lib/hooks";
+import { setFilmFilter } from "@/lib/features/film/film-slice";
 
 const FilmFilter = () => {
-  const { handleSubmit, control, register } = useForm<TFilmFilter>();
-  const filmFilterOnSubmit = handleSubmit((data) => {});
+  const {
+    handleSubmit,
+    control,
+    register,
+    formState: { dirtyFields },
+  } = useForm<TFilmFilter>();
+  const dispatch = useAppDispatch();
+
+  const filmFilterOnSubmit = handleSubmit((data) => {
+    for (const prop in data) {
+      const _prop = prop as keyof TFilmFilter;
+      if (!!dirtyFields[_prop]?.valueOf() === false) {
+        delete data[_prop];
+      }
+    }
+
+    dispatch(setFilmFilter(data));
+  });
 
   return (
     <form
@@ -32,7 +46,6 @@ const FilmFilter = () => {
               <input
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                 type="text"
-                defaultValue=""
                 {...register("name")}
               />
             </div>
@@ -43,7 +56,6 @@ const FilmFilter = () => {
               <input
                 className="w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                 type="text"
-                defaultValue=""
                 {...register("director")}
               />
             </div>

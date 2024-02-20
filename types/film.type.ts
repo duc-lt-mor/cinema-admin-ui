@@ -38,3 +38,12 @@ export type TFilmFormInput = {
   releasedAt: string;
   durationInMinutes: string;
 };
+
+export type TFilmFilter = Partial<
+  Pick<TFilm, "cast" | "director" | "name" | "genres" | "isActive">
+>;
+
+export type TFilmFilterWithPagination = {
+  page: number;
+  limit: number;
+} & TFilmFilter;

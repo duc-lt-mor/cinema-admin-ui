@@ -1,6 +1,6 @@
 "use server";
 import { Api } from "@/constants/api.constant";
-import { TFilm, TFilmList } from "@/types/film.type";
+import { TFilm, TFilmFilterWithPagination, TFilmList } from "@/types/film.type";
 import useAxiosRef from "@/hooks/useAxiosRef";
 import { TResponse, TResponseError } from "@/types/response.type";
 import { AxiosError, AxiosResponse } from "axios";
@@ -13,7 +13,7 @@ import {
 } from "@/types/screening.type";
 import { TAuditoriumList } from "@/types/auditorium.type";
 
-export const getFilms = async (pagination: { page: number; limit: number }) => {
+export const getFilms = async (filter: TFilmFilterWithPagination) => {
   try {
     const axiosRef = await useAxiosRef();
     const result: AxiosResponse<
@@ -22,7 +22,7 @@ export const getFilms = async (pagination: { page: number; limit: number }) => {
         page: number;
         filmsCount: number;
       }>
-    > = await axiosRef.get(Api.FILM, { params: pagination });
+    > = await axiosRef.get(Api.FILM, { params: filter });
 
     if (result.data?.type === EResponseType.SUCCESS) {
       return result.data;
