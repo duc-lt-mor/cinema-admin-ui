@@ -7,25 +7,28 @@ import ScreeningRow from "./screening-row";
 import { useQuery } from "@tanstack/react-query";
 import { getScreenings } from "@/commons/api-calls.common";
 import "../pagination.css";
-import { useAppDispatch } from "@/lib/hooks";
-import {
-  setCurrentLimit,
-  setCurrentPage,
-} from "@/lib/features/screening/screening-slice";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
+import { setScreeningPagination } from "@/lib/features/screening/screening-slice";
 import { screeningKeys } from "./constants/query-key-factory.constant";
 import ScreeningFilter from "./screening-filter";
+import { useEffect } from "react";
 
 const ScreeningList = ({ page, limit }: { page: number; limit: number }) => {
-  const { data: result } = useQuery({
-    queryKey: screeningKeys.paginate(page, limit),
-    queryFn: () => {
-      return getScreenings({ page, limit });
-    },
-  });
+  const { filter: screeningFilter } = useAppSelector(
+    (state) => state.screening,
+  );
 
   const dispatch = useAppDispatch();
-  dispatch(setCurrentLimit({ currentLimit: limit }));
-  dispatch(setCurrentPage({ currentPage: page }));
+  useEffect(() => {
+    dispatch(setScreeningPagination({ page, limit }));
+  }, [page, limit]);
+
+  const { data: result } = useQuery({
+    queryKey: screeningKeys.filter({ page, limit, ...screeningFilter }),
+    queryFn: () => {
+      return getScreenings({ page, limit, ...screeningFilter });
+    },
+  });
 
   const createRowElements = (screenings: TScreeningList) => {
     return screenings?.length > 0 ? (

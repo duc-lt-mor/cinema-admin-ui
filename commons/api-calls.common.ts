@@ -134,10 +134,7 @@ export const toggleFilmActiveStatus = async (
   }
 };
 
-export const getScreenings = async (pagination: {
-  page: number;
-  limit: number;
-}) => {
+export const getScreenings = async (filter: TFilmFilterWithPagination) => {
   try {
     const axiosRef = await useAxiosRef();
     const result: AxiosResponse<
@@ -146,7 +143,7 @@ export const getScreenings = async (pagination: {
         page: number;
         screeningsCount: number;
       }>
-    > = await axiosRef.get(Api.SCREENING, { params: pagination });
+    > = await axiosRef.get(Api.SCREENING, { params: filter });
 
     if (result.data?.type === EResponseType.SUCCESS) {
       return result.data;

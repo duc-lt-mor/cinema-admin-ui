@@ -2,31 +2,39 @@ import {
   DEFAULT_SCREENING_LIMIT,
   DEFAULT_SCREENING_PAGE,
 } from "@/app/screening/constants/pagination-configs.constant";
+import { TScreeningFilter } from "@/types/screening.type";
 import { createSlice } from "@reduxjs/toolkit";
 
 const screeningSlice = createSlice({
   name: "screening",
   initialState: {
-    currentPage: +DEFAULT_SCREENING_PAGE,
-    currentLimit: +DEFAULT_SCREENING_LIMIT,
+    pagination: {
+      page: +DEFAULT_SCREENING_PAGE,
+      limit: +DEFAULT_SCREENING_LIMIT,
+    },
+    filter: {} as TScreeningFilter,
   },
   reducers: {
-    setCurrentPage(
+    setScreeningPagination(
       state,
-      action: { type: string; payload: { currentPage: number } },
+      action: {
+        type: string;
+        payload: { page: number; limit: number };
+      },
     ) {
-      state.currentPage = action.payload.currentPage;
+      state.pagination = action.payload;
     },
-    setCurrentLimit(
+    setScreeningFilter(
       state,
-      action: { type: string; payload: { currentLimit: number } },
+      action: { type: string; payload: TScreeningFilter },
     ) {
-      state.currentLimit = action.payload.currentLimit;
+      state.filter = action.payload;
     },
   },
 });
 
 const screeningReducer = screeningSlice.reducer;
 
-export const { setCurrentPage, setCurrentLimit } = screeningSlice.actions;
+export const { setScreeningPagination, setScreeningFilter } =
+  screeningSlice.actions;
 export default screeningReducer;

@@ -1,5 +1,7 @@
+import { TScreeningFilterWithPagination } from "@/types/screening.type";
+
 export const screeningKeys = {
   all: ["screening"] as const,
-  paginate: (page: number, limit: number) =>
-    [...screeningKeys.all, page, limit] as const,
+  filter: (filter: TScreeningFilterWithPagination) =>
+    [...screeningKeys.all, { filter }] as const,
 };

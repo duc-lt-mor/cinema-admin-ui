@@ -26,3 +26,15 @@ export type TScreeningSlot = TBaseSchema & {
   };
   isAvailable: boolean;
 };
+
+export type TScreeningFilter = {
+  filmIds?: TScreeningFormInput["filmId"][];
+  auditoriumIds?: TScreeningFormInput["auditoriumId"][];
+  startDate?: string;
+  endDate?: string;
+};
+
+export type TScreeningFilterWithPagination = {
+  page: number;
+  limit: number;
+} & TScreeningFilter;

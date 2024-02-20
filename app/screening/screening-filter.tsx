@@ -3,7 +3,6 @@
 import { TCustomSelectOptions } from "@/types/custom-select-options.type";
 import { Controller, useForm } from "react-hook-form";
 import Select, { MultiValue } from "react-select";
-import { TScreeningFormInput } from "@/types/screening.type";
 import { TFilm } from "@/types/film.type";
 import {
   FILMS_LOAD_COUNT,
@@ -18,13 +17,9 @@ import { TAuditorium } from "@/types/auditorium.type";
 import { compareAsc, isValid } from "date-fns";
 import FilterFormButtons from "@/components/FilterFormButtons/FilterFormButtons";
 import { Mutable } from "@/types/utils.type";
-
-type TScreeningFilter = {
-  filmIds?: TScreeningFormInput["filmId"][];
-  auditoriumIds?: TScreeningFormInput["auditoriumId"][];
-  startDate?: string;
-  endDate?: string;
-};
+import { TScreeningFilter } from "@/types/screening.type";
+import { useAppDispatch } from "@/lib/hooks";
+import { setScreeningFilter } from "@/lib/features/screening/screening-slice";
 
 const ScreeningFilter = () => {
   const filmsPage = FILMS_LOAD_PAGE;
@@ -44,10 +39,12 @@ const ScreeningFilter = () => {
   const {
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, dirtyFields },
     getValues,
     reset,
   } = useForm<TScreeningFilter>();
+
+  const dispatch = useAppDispatch();
 
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
     queries: [
@@ -127,7 +124,18 @@ const ScreeningFilter = () => {
     [],
   );
 
-  const screeningFilterOnSubmit = handleSubmit((data) => {});
+  const screeningFilterOnSubmit = handleSubmit((data) => {
+    for (const prop in data) {
+      const _prop = prop as keyof TScreeningFilter;
+      if (!dirtyFields[_prop]?.valueOf()) {
+        delete data[_prop];
+      }
+    }
+
+    console.log(data);
+
+    dispatch(setScreeningFilter(data));
+  });
 
   const handleClearFilter = () => {
     reset();
@@ -135,6 +143,7 @@ const ScreeningFilter = () => {
     setAudIdSelectValues([]);
     setStartDateInputValue("");
     setEndDateInputValue("");
+    dispatch(setScreeningFilter({}));
   };
 
   return (
@@ -188,6 +197,7 @@ const ScreeningFilter = () => {
                       TCustomSelectOptions<TAuditorium["_id"]>
                     >,
                   ) => {
+                    console.log(values);
                     const _values = values as Mutable<typeof values>;
                     setAudIdSelectValues(_values);
                     const auditoriumIds = values.map((option) => option.value);
