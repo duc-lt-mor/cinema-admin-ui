@@ -30,6 +30,7 @@ import FormButtons from "@/components/FormButtons/FormButtons";
 const FilmForm = (props: { film?: TFilm }) => {
   const [defaultValues, setDefaultValues] = useState<TFilmFormInput>();
   const film = useMemo(() => props.film, [props]);
+  const [tags, setTags] = useState<TTag[]>([]);
 
   useEffect(() => {
     const transformDefaultValues = async () => {
@@ -53,6 +54,12 @@ const FilmForm = (props: { film?: TFilm }) => {
 
         if (film.cast && film.cast.length > 0) {
           newDefaultValues.cast = film.cast.join(",");
+          setTags(
+            film.cast.map((actor, i) => ({
+              value: actor,
+              key: i,
+            })),
+          );
         }
 
         if (film.trailer) {
@@ -377,6 +384,8 @@ const FilmForm = (props: { film?: TFilm }) => {
                     onChange={handleCastChange}
                     name={field.name}
                     placeholder="Actor names, serapated by comma (,)"
+                    tags={tags}
+                    setTags={setTags}
                   />
                 );
               }}

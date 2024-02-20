@@ -13,9 +13,11 @@ import { useQueries } from "@tanstack/react-query";
 import { filmKeys } from "../film/constants/query-key-factory.constant";
 import { getAuditoriums, getFilms } from "@/commons/api-calls.common";
 import { auditoriumKeys } from "../auditorium/constants/query-key-factory.constant";
-import { ChangeEvent, useCallback, useMemo } from "react";
+import { ChangeEvent, useCallback, useMemo, useState } from "react";
 import { TAuditorium } from "@/types/auditorium.type";
 import { compareAsc, isValid } from "date-fns";
+import FilterFormButtons from "@/components/FilterFormButtons/FilterFormButtons";
+import { Mutable } from "@/types/utils.type";
 
 type TScreeningFilter = {
   filmIds?: TScreeningFormInput["filmId"][];
@@ -27,11 +29,24 @@ type TScreeningFilter = {
 const ScreeningFilter = () => {
   const filmsPage = FILMS_LOAD_PAGE;
   const filmsCount = FILMS_LOAD_COUNT;
+
+  const [filmIdSelectValues, setFilmIdSelectValues] = useState<
+    TCustomSelectOptions<TFilm["_id"]>[]
+  >([]);
+
+  const [audIdSelectValues, setAudIdSelectValues] = useState<
+    TCustomSelectOptions<TAuditorium["_id"]>[]
+  >([]);
+
+  const [startDateInputValue, setStartDateInputValue] = useState("");
+  const [endDateInputValue, setEndDateInputValue] = useState("");
+
   const {
     handleSubmit,
     control,
     formState: { errors },
     getValues,
+    reset,
   } = useForm<TScreeningFilter>();
 
   const [{ data: filmResult }, { data: auditoriumResult }] = useQueries({
@@ -114,6 +129,14 @@ const ScreeningFilter = () => {
 
   const screeningFilterOnSubmit = handleSubmit((data) => {});
 
+  const handleClearFilter = () => {
+    reset();
+    setFilmIdSelectValues([]);
+    setAudIdSelectValues([]);
+    setStartDateInputValue("");
+    setEndDateInputValue("");
+  };
+
   return (
     <form
       className="border-separate px-6 xl:px-7.5 mb-10"
@@ -131,6 +154,8 @@ const ScreeningFilter = () => {
                   const handleSelectChange = (
                     values: MultiValue<TCustomSelectOptions<TFilm["_id"]>>,
                   ) => {
+                    const _values = values as Mutable<typeof values>;
+                    setFilmIdSelectValues(_values);
                     const filmIds = values.map((option) => option.value);
                     field.onChange(filmIds);
                   };
@@ -143,6 +168,7 @@ const ScreeningFilter = () => {
                       options={filmSelectOptions}
                       onChange={handleSelectChange}
                       closeMenuOnSelect={false}
+                      value={filmIdSelectValues}
                     />
                   );
                 }}
@@ -162,6 +188,8 @@ const ScreeningFilter = () => {
                       TCustomSelectOptions<TAuditorium["_id"]>
                     >,
                   ) => {
+                    const _values = values as Mutable<typeof values>;
+                    setAudIdSelectValues(_values);
                     const auditoriumIds = values.map((option) => option.value);
                     field.onChange(auditoriumIds);
                   };
@@ -174,6 +202,7 @@ const ScreeningFilter = () => {
                       options={auditoriumSelectOptions}
                       onChange={handleSelectChange}
                       closeMenuOnSelect={false}
+                      value={audIdSelectValues}
                     />
                   );
                 }}
@@ -181,7 +210,7 @@ const ScreeningFilter = () => {
             </div>
           </div>
           <div className="basis-1/4" role="row">
-            <label htmlFor="cast">Start date</label>
+            <label htmlFor="startDate">Start date</label>
             <div className="mt-2.5 w-full">
               <Controller
                 name="startDate"
@@ -195,7 +224,8 @@ const ScreeningFilter = () => {
                     if (value === "") {
                       field.onChange(undefined);
                     } else {
-                      field.onChange(event.currentTarget.value);
+                      field.onChange(value);
+                      setStartDateInputValue(value);
                     }
                   };
 
@@ -204,6 +234,7 @@ const ScreeningFilter = () => {
                       type="date"
                       className="custom-input-date custom-input-date-1 w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                       onChange={handleStartDateInputChange}
+                      value={startDateInputValue}
                     />
                   );
                 }}
@@ -214,7 +245,7 @@ const ScreeningFilter = () => {
             </div>
           </div>
           <div className="basis-1/4" role="row">
-            <label htmlFor="cast">End date</label>
+            <label htmlFor="endDate">End date</label>
             <div className="mt-2.5 w-full">
               <Controller
                 name="endDate"
@@ -228,7 +259,8 @@ const ScreeningFilter = () => {
                     if (value === "") {
                       field.onChange(undefined);
                     } else {
-                      field.onChange(event.currentTarget.value);
+                      field.onChange(value);
+                      setEndDateInputValue(value);
                     }
                   };
 
@@ -237,6 +269,7 @@ const ScreeningFilter = () => {
                       type="date"
                       className="custom-input-date custom-input-date-1 w-full rounded border-[1.5px] border-stroke bg-transparent py-3 px-5 font-medium outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
                       onChange={handleEndDateInputChange}
+                      value={endDateInputValue}
                     />
                   );
                 }}
@@ -248,14 +281,7 @@ const ScreeningFilter = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row-reverse mt-5">
-        <button
-          type="submit"
-          className="rounded bg-primary py-3 px-10 font-medium text-gray"
-        >
-          Filter
-        </button>
-      </div>
+      <FilterFormButtons handleClearFilter={handleClearFilter} />
     </form>
   );
 };
